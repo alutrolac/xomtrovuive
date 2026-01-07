@@ -1,14 +1,27 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-<meta charset="utf-8"/>
-<title>Quản lý nhà trọ</title>
+<meta charset="UTF-8">
+<title>Quản Lý Nhà Trọ - Level 4</title>
+<style>
+body{font-family:Arial;background:#eef2f5;padding:20px}
+h1{color:#2c3e50}
+table{border-collapse:collapse;width:100%;background:#fff}
+th,td{border:1px solid #ccc;padding:6px;text-align:center}
+th{background:#34495e;color:#fff}
+input{width:70px}
+button{padding:6px 12px;margin:10px 0}
+</style>
 </head>
 <body>
-<h1>Quản lý nhà trọ</h1>
-<p>Ứng dụng demo chạy GitHub Pages</p>
-<pre id="data"></pre>
-<script src="data.js"></script>
+<h1>App Quản Lý Nhà Trọ (Level 4)</h1>
+<p>Điện 4.000đ | Nước 20.000đ | Phòng 1.500.000đ</p>
+
+<table id="bang"></table>
+
+<button onclick="luu()">💾 Lưu dữ liệu</button>
+<button onclick="xuat()">🧾 Xuất hóa đơn</button>
+
+<script src="app.js"></script>
 </body>
 </html>
