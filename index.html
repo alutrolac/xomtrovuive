@@ -1,36 +1,186 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<title>Quản Lý Nhà Trọ</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quản lý nhà trọ</title>
+  <link rel="stylesheet" href="assets/styles.css" />
 </head>
-<body class="bg-light">
+<body>
+  <div id="app">
+    <!-- Login -->
+    <div class="auth-container" id="authContainer">
+      <div class="auth-card">
+        <h1>Đăng nhập</h1>
+        <p class="sub">Giao diện quản lý nhà trọ</p>
+        <form id="loginForm">
+          <label>Tài khoản</label>
+          <input type="text" id="username" placeholder="admin" required />
+          <label>Mật khẩu</label>
+          <input type="password" id="password" placeholder="admin123" required />
+          <button type="submit" class="btn primary">Đăng nhập</button>
+        </form>
+        <p class="hint">Mặc định: admin / admin123 (cấu hình trong config.js)</p>
+      </div>
+    </div>
 
-<div class="container mt-4">
-  <h2 class="mb-3">🏠 Quản Lý Nhà Trọ</h2>
+    <!-- Main -->
+    <div class="layout" id="mainLayout" style="display:none;">
+      <aside class="sidebar">
+        <div class="brand">Nhà Trọ Pro</div>
+        <nav>
+          <button class="nav-item active" data-view="dashboard">Dashboard</button>
+          <button class="nav-item" data-view="tenants">Người thuê</button>
+          <button class="nav-item" data-view="rooms">Phòng</button>
+          <button class="nav-item" data-view="billing">Hóa đơn</button>
+          <button class="nav-item" data-view="settings">Cài đặt</button>
+        </nav>
+        <div class="sidebar-bottom">
+          <button id="logoutBtn" class="btn">Đăng xuất</button>
+        </div>
+      </aside>
 
-  <div class="alert alert-info">
-    Giá phòng: <b>1.500.000</b> | Điện: <b>4.000</b> | Nước: <b>20.000</b>
+      <main class="content">
+        <!-- Top bar -->
+        <div class="topbar">
+          <div class="search">
+            <input type="text" id="globalSearch" placeholder="Tìm tên người thuê, số phòng, số điện..." />
+          </div>
+          <div class="mode">
+            <select id="dataMode">
+              <option value="local">Local (mặc định)</option>
+              <option value="sheets">Google Sheets</option>
+            </select>
+            <button id="reloadData" class="btn">Tải dữ liệu</button>
+          </div>
+        </div>
+
+        <!-- Dashboard -->
+        <section id="view-dashboard" class="view">
+          <h2>Tổng quan</h2>
+          <div class="cards">
+            <div class="card">
+              <div class="card-title">Tổng số phòng</div>
+              <div class="card-value" id="statRooms">0</div>
+            </div>
+            <div class="card">
+              <div class="card-title">Phòng đang ở</div>
+              <div class="card-value" id="statOccupied">0</div>
+            </div>
+            <div class="card">
+              <div class="card-title">Người thuê</div>
+              <div class="card-value" id="statTenants">0</div>
+            </div>
+            <div class="card">
+              <div class="card-title">Doanh thu tháng (ước tính)</div>
+              <div class="card-value" id="statRevenue">0 VND</div>
+            </div>
+          </div>
+          <div class="panel">
+            <h3>Biểu phí</h3>
+            <div class="fees">
+              <div>Điện: <span id="feeElectric">—</span> VND/kWh</div>
+              <div>Nước: <span id="feeWater">—</span> VND/m³</div>
+              <div>Phòng: <span id="feeRoom">—</span> VND/tháng</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tenants -->
+        <section id="view-tenants" class="view" style="display:none;">
+          <div class="header-row">
+            <h2>Người thuê</h2>
+            <button id="addTenantBtn" class="btn primary">Thêm người thuê</button>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Họ tên</th>
+                  <th>Điện thoại</th>
+                  <th>Email</th>
+                  <th>Phòng</th>
+                  <th>Ngày vào</th>
+                  <th>Hành động</th>
+                </tr>
+              </thead>
+              <tbody id="tenantsTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Rooms -->
+        <section id="view-rooms" class="view" style="display:none;">
+          <div class="header-row">
+            <h2>Phòng</h2>
+            <button id="addRoomBtn" class="btn primary">Thêm phòng</button>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Số phòng</th>
+                  <th>Trạng thái</th>
+                  <th>Người thuê</th>
+                  <th>Điện (kWh)</th>
+                  <th>Nước (m³)</th>
+                  <th>Hành động</th>
+                </tr>
+              </thead>
+              <tbody id="roomsTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Billing -->
+        <section id="view-billing" class="view" style="display:none;">
+          <div class="header-row">
+            <h2>Hóa đơn tháng</h2>
+            <button id="generateBillsBtn" class="btn primary">Tạo hóa đơn</button>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Phòng</th>
+                  <th>Tiền phòng</th>
+                  <th>Điện</th>
+                  <th>Nước</th>
+                  <th>Tổng</th>
+                  <th>Ghi chú</th>
+                </tr>
+              </thead>
+              <tbody id="billingTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Settings -->
+        <section id="view-settings" class="view" style="display:none;">
+          <h2>Cài đặt</h2>
+          <div class="form-grid">
+            <div class="form-card">
+              <h3>Biểu phí</h3>
+              <label>Điện (VND/kWh)</label>
+              <input type="number" id="inputElectricFee" />
+              <label>Nước (VND/m³)</label>
+              <input type="number" id="inputWaterFee" />
+              <label>Tiền phòng (VND/tháng)</label>
+              <input type="number" id="inputRoomFee" />
+              <button id="saveFeesBtn" class="btn primary">Lưu</button>
+            </div>
+            <div class="form-card">
+              <h3>Google Sheets</h3>
+              <p>Dán URL CSV (Publish to web) trong config/config.js.</p>
+              <button id="testSheetsBtn" class="btn">Kiểm tra kết nối</button>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
   </div>
 
-  <table class="table table-bordered table-hover bg-white">
-    <thead class="table-dark">
-      <tr>
-        <th>Phòng</th>
-        <th>Khách</th>
-        <th>Điện (kWh)</th>
-        <th>Nước (m³)</th>
-        <th>Tổng tiền</th>
-      </tr>
-    </thead>
-    <tbody id="bang"></tbody>
-  </table>
-
-  <button class="btn btn-success" onclick="luu()">💾 Lưu dữ liệu</button>
-  <button class="btn btn-primary" onclick="xuat()">📄 Xuất CSV</button>
-</div>
-
-<script src="app.js"></script>
+  <script src="config/config.js"></script>
+  <script src="assets/app.js"></script>
 </body>
 </html>
