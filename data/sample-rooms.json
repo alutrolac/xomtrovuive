@@ -1,1 +1,6 @@
-
+[
+  { "room": "101", "status": "occupied", "electricKwh": 85, "waterM3": 5 },
+  { "room": "102", "status": "occupied", "electricKwh": 65, "waterM3": 4 },
+  { "room": "103", "status": "vacant", "electricKwh": 0, "waterM3": 0 },
+  { "room": "104", "status": "occupied", "electricKwh": 72, "waterM3": 6 }
+]
