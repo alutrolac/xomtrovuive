@@ -1,349 +1,43 @@
-const DATA = {
-  "gia_dien": 4000,
-  "gia_nuoc": 20000,
-  "gia_thue": 1500000,
-  "phong": [
-    "P01",
-    "P02",
-    "P03",
-    "P04",
-    "P05",
-    "P06",
-    "P07",
-    "P08",
-    "P09",
-    "P10",
-    "P11",
-    "P12",
-    "P13",
-    "P14",
-    "P15",
-    "P16",
-    "P17",
-    "P18",
-    "P19",
-    "P20",
-    "P21",
-    "P22",
-    "P23",
-    "P24",
-    "P25",
-    "P26",
-    "P27",
-    "P28",
-    "P29",
-    "P30",
-    "P31",
-    "P32",
-    "P33",
-    "P34",
-    "P35",
-    "P36",
-    "P37",
-    "P38",
-    "P39",
-    "P40"
-  ],
-  "khach": [
-    {
-      "ma": "K001"
-    },
-    {
-      "ma": "K002"
-    },
-    {
-      "ma": "K003"
-    },
-    {
-      "ma": "K004"
-    },
-    {
-      "ma": "K005"
-    },
-    {
-      "ma": "K006"
-    },
-    {
-      "ma": "K007"
-    },
-    {
-      "ma": "K008"
-    },
-    {
-      "ma": "K009"
-    },
-    {
-      "ma": "K010"
-    },
-    {
-      "ma": "K011"
-    },
-    {
-      "ma": "K012"
-    },
-    {
-      "ma": "K013"
-    },
-    {
-      "ma": "K014"
-    },
-    {
-      "ma": "K015"
-    },
-    {
-      "ma": "K016"
-    },
-    {
-      "ma": "K017"
-    },
-    {
-      "ma": "K018"
-    },
-    {
-      "ma": "K019"
-    },
-    {
-      "ma": "K020"
-    },
-    {
-      "ma": "K021"
-    },
-    {
-      "ma": "K022"
-    },
-    {
-      "ma": "K023"
-    },
-    {
-      "ma": "K024"
-    },
-    {
-      "ma": "K025"
-    },
-    {
-      "ma": "K026"
-    },
-    {
-      "ma": "K027"
-    },
-    {
-      "ma": "K028"
-    },
-    {
-      "ma": "K029"
-    },
-    {
-      "ma": "K030"
-    },
-    {
-      "ma": "K031"
-    },
-    {
-      "ma": "K032"
-    },
-    {
-      "ma": "K033"
-    },
-    {
-      "ma": "K034"
-    },
-    {
-      "ma": "K035"
-    },
-    {
-      "ma": "K036"
-    },
-    {
-      "ma": "K037"
-    },
-    {
-      "ma": "K038"
-    },
-    {
-      "ma": "K039"
-    },
-    {
-      "ma": "K040"
-    },
-    {
-      "ma": "K041"
-    },
-    {
-      "ma": "K042"
-    },
-    {
-      "ma": "K043"
-    },
-    {
-      "ma": "K044"
-    },
-    {
-      "ma": "K045"
-    },
-    {
-      "ma": "K046"
-    },
-    {
-      "ma": "K047"
-    },
-    {
-      "ma": "K048"
-    },
-    {
-      "ma": "K049"
-    },
-    {
-      "ma": "K050"
-    },
-    {
-      "ma": "K051"
-    },
-    {
-      "ma": "K052"
-    },
-    {
-      "ma": "K053"
-    },
-    {
-      "ma": "K054"
-    },
-    {
-      "ma": "K055"
-    },
-    {
-      "ma": "K056"
-    },
-    {
-      "ma": "K057"
-    },
-    {
-      "ma": "K058"
-    },
-    {
-      "ma": "K059"
-    },
-    {
-      "ma": "K060"
-    },
-    {
-      "ma": "K061"
-    },
-    {
-      "ma": "K062"
-    },
-    {
-      "ma": "K063"
-    },
-    {
-      "ma": "K064"
-    },
-    {
-      "ma": "K065"
-    },
-    {
-      "ma": "K066"
-    },
-    {
-      "ma": "K067"
-    },
-    {
-      "ma": "K068"
-    },
-    {
-      "ma": "K069"
-    },
-    {
-      "ma": "K070"
-    },
-    {
-      "ma": "K071"
-    },
-    {
-      "ma": "K072"
-    },
-    {
-      "ma": "K073"
-    },
-    {
-      "ma": "K074"
-    },
-    {
-      "ma": "K075"
-    },
-    {
-      "ma": "K076"
-    },
-    {
-      "ma": "K077"
-    },
-    {
-      "ma": "K078"
-    },
-    {
-      "ma": "K079"
-    },
-    {
-      "ma": "K080"
-    },
-    {
-      "ma": "K081"
-    },
-    {
-      "ma": "K082"
-    },
-    {
-      "ma": "K083"
-    },
-    {
-      "ma": "K084"
-    },
-    {
-      "ma": "K085"
-    },
-    {
-      "ma": "K086"
-    },
-    {
-      "ma": "K087"
-    },
-    {
-      "ma": "K088"
-    },
-    {
-      "ma": "K089"
-    },
-    {
-      "ma": "K090"
-    },
-    {
-      "ma": "K091"
-    },
-    {
-      "ma": "K092"
-    },
-    {
-      "ma": "K093"
-    },
-    {
-      "ma": "K094"
-    },
-    {
-      "ma": "K095"
-    },
-    {
-      "ma": "K096"
-    },
-    {
-      "ma": "K097"
-    },
-    {
-      "ma": "K098"
-    },
-    {
-      "ma": "K099"
-    },
-    {
-      "ma": "K100"
-    }
-  ]
+const GIA_DIEN=4000,GIA_NUOC=20000,GIA_PHONG=1500000;
+const TEN=["An","Bình","Cường","Dũng","Hạnh","Hòa","Hùng","Khánh","Lâm","Minh","Nam","Phong","Quang","Sơn","Trang","Tuấn","Vinh"];
+const PHONG=[...Array(40)].map((_,i)=>"P"+String(i+1).padStart(2,"0"));
+
+let data=JSON.parse(localStorage.getItem("nha_tro")) ||
+PHONG.map(p=>({phong:p,ten:TEN[Math.floor(Math.random()*TEN.length)],dien:100,nuoc:3}));
+
+const bang=document.getElementById("bang");
+
+function ve(){
+ bang.innerHTML=`<tr>
+ <th>Phòng</th><th>Khách</th><th>Điện</th><th>Nước</th><th>Tổng</th></tr>`;
+ data.forEach((k,i)=>{
+  const tong=GIA_PHONG+k.dien*GIA_DIEN+k.nuoc*GIA_NUOC;
+  bang.innerHTML+=`
+  <tr>
+   <td>${k.phong}</td>
+   <td>${k.ten}</td>
+   <td><input value="${k.dien}" onchange="data[${i}].dien=this.value"></td>
+   <td><input value="${k.nuoc}" onchange="data[${i}].nuoc=this.value"></td>
+   <td>${tong.toLocaleString()} đ</td>
+  </tr>`;
+ });
+}
+ve();
+
+function luu(){
+ localStorage.setItem("nha_tro",JSON.stringify(data));
+ alert("Đã lưu dữ liệu");
+}
+
+function xuat(){
+ let text="HOA DON NHA TRO\n\n";
+ data.forEach(k=>{
+  let t=GIA_PHONG+k.dien*GIA_DIEN+k.nuoc*GIA_NUOC;
+  text+=`${k.phong} - ${k.ten}: ${t.toLocaleString()} đ\n`;
+ });
+ const blob=new Blob([text],{type:"text/plain"});
+ const a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);
+ a.download="hoa_don.txt";
+ a.click();
 }
