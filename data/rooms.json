@@ -1,1 +1,36 @@
 
+[
+  { "room": "101", "status": "occupied", "electricKwh": 85, "waterM3": 5 },
+  { "room": "102", "status": "occupied", "electricKwh": 65, "waterM3": 4 },
+  { "room": "103", "status": "occupied", "electricKwh": 72, "waterM3": 6 },
+  { "room": "104", "status": "occupied", "electricKwh": 90, "waterM3": 7 },
+  { "room": "105", "status": "occupied", "electricKwh": 55, "waterM3": 3 },
+  { "room": "106", "status": "occupied", "electricKwh": 60, "waterM3": 4 },
+  { "room": "107", "status": "occupied", "electricKwh": 78, "waterM3": 6 },
+  { "room": "108", "status": "occupied", "electricKwh": 82, "waterM3": 5 },
+  { "room": "109", "status": "occupied", "electricKwh": 70, "waterM3": 4 },
+  { "room": "110", "status": "occupied", "electricKwh": 68, "waterM3": 5 },
+
+  { "room": "111", "status": "vacant", "electricKwh": 0, "waterM3": 0 },
+  { "room": "112", "status": "vacant", "electricKwh": 0, "waterM3": 0 },
+  { "room": "113", "status": "occupied", "electricKwh": 75, "waterM3": 6 },
+  { "room": "114", "status": "occupied", "electricKwh": 80, "waterM3": 5 },
+  { "room": "115", "status": "occupied", "electricKwh": 66, "waterM3": 4 },
+  { "room": "116", "status": "occupied", "electricKwh": 92, "waterM3": 7 },
+  { "room": "117", "status": "occupied", "electricKwh": 58, "waterM3": 3 },
+  { "room": "118", "status": "occupied", "electricKwh": 64, "waterM3": 4 },
+  { "room": "119", "status": "occupied", "electricKwh": 71, "waterM3": 5 },
+  { "room": "120", "status": "occupied", "electricKwh": 69, "waterM3": 4 },
+
+  { "room": "121", "status": "vacant", "electricKwh": 0, "waterM3": 0 },
+  { "room": "122", "status": "vacant", "electricKwh": 0, "waterM3": 0 },
+  { "room": "123", "status": "occupied", "electricKwh": 83, "waterM3": 6 },
+  { "room": "124", "status": "occupied", "electricKwh": 77, "waterM3": 5 },
+  { "room": "125", "status": "occupied", "electricKwh": 62, "waterM3": 4 },
+  { "room": "126", "status": "occupied", "electricKwh": 88, "waterM3": 7 },
+  { "room": "127", "status": "occupied", "electricKwh": 59, "waterM3": 3 },
+  { "room": "128", "status": "occupied", "electricKwh": 73, "waterM3": 5 },
+  { "room": "129", "status": "occupied", "electricKwh": 67, "waterM3": 4 },
+  { "room": "130", "status": "occupied", "electricKwh": 74, "waterM3": 5 },
+
+  { "room": "131", "status":
