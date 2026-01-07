@@ -1,1 +1,5 @@
-
+{
+  "electricPerKwh": 4000,
+  "waterPerM3": 20000,
+  "roomPerMonth": 1500000
+}
