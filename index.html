@@ -1,14 +1,30 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-<meta charset="utf-8"/>
-<title>Quản lý nhà trọ</title>
+<meta charset="UTF-8">
+<title>App Quản Lý Nhà Trọ</title>
+<style>
+body { font-family: Arial; background:#f4f6f8; padding:20px }
+h1 { color:#2c3e50 }
+table { border-collapse: collapse; width:100%; background:#fff }
+th, td { border:1px solid #ccc; padding:8px; text-align:center }
+th { background:#2c3e50; color:white }
+</style>
 </head>
 <body>
-<h1>Quản lý nhà trọ</h1>
-<p>Ứng dụng demo chạy GitHub Pages</p>
-<pre id="data"></pre>
+<h1>Quản Lý Nhà Trọ</h1>
+<p>Giá điện: 4.000đ | Giá nước: 20.000đ | Tiền phòng: 1.500.000đ</p>
+<table id="bang">
+<tr>
+<th>Phòng</th>
+<th>Khách</th>
+<th>Điện (kWh)</th>
+<th>Nước (m³)</th>
+<th>Tổng tiền</th>
+</tr>
+</table>
+
 <script src="data.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
