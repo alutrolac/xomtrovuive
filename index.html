@@ -3,79 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phòng Trọ Pro - Hệ Thống Quản Lý</title>
+    <title>Hệ Thống Quản Lý Nhà Trọ Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-        .sidebar-item:hover { background-color: #374151; }
-        .active { background-color: #2563eb; }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
-    <div class="flex h-screen overflow-hidden">
-        <aside class="w-64 bg-gray-900 text-white flex flex-col">
-            <div class="p-6 text-2xl font-bold border-b border-gray-800 text-blue-400">
-                <i class="fa-solid fa-house-chimney mr-2"></i>PT-PRO
-            </div>
-            <nav class="flex-1 p-4 space-y-2">
-                <a href="#" onclick="showSection('dashboard')" class="sidebar-item block p-3 rounded active transition"><i class="fa-solid fa-chart-line mr-3"></i>Dashboard</a>
-                <a href="#" onclick="showSection('rooms')" class="sidebar-item block p-3 rounded transition"><i class="fa-solid fa-door-open mr-3"></i>Quản lý phòng</a>
-                <a href="#" onclick="showSection('tenants')" class="sidebar-item block p-3 rounded transition"><i class="fa-solid fa-users mr-3"></i>Khách thuê</a>
-                <a href="#" onclick="showSection('bills')" class="sidebar-item block p-3 rounded transition"><i class="fa-solid fa-file-invoice-dollar mr-3"></i>Hóa đơn</a>
+<body class="bg-gray-100 font-sans">
+    <div class="flex h-screen">
+        <aside class="w-64 bg-indigo-900 text-white flex-shrink-0 hidden md:block">
+            <div class="p-6 text-2xl font-bold border-b border-indigo-800">QL NHÀ TRỌ</div>
+            <nav class="mt-6">
+                <a href="#" onclick="showSection('dashboard')" class="block py-3 px-6 hover:bg-indigo-800 transition"><i class="fas fa-chart-line mr-2"></i> Dashboard</a>
+                <a href="#" onclick="showSection('rooms')" class="block py-3 px-6 hover:bg-indigo-800 transition"><i class="fas fa-door-open mr-2"></i> Quản lý phòng</a>
+                <a href="#" onclick="showSection('tenants')" class="block py-3 px-6 hover:bg-indigo-800 transition"><i class="fas fa-users mr-2"></i> Khách thuê</a>
+                <a href="#" onclick="showSection('billing')" class="block py-3 px-6 hover:bg-indigo-800 transition"><i class="fas fa-file-invoice-dollar mr-2"></i> Hóa đơn</a>
             </nav>
         </aside>
 
         <main class="flex-1 overflow-y-auto p-8">
             <header class="flex justify-between items-center mb-8">
-                <h2 id="section-title" class="text-3xl font-bold text-gray-800">Dashboard Tổng Quan</h2>
+                <h2 id="section-title" class="text-3xl font-semibold text-gray-800">Tổng quan</h2>
                 <div class="flex items-center space-x-4">
-                    <span class="text-gray-600">Admin: <strong class="text-blue-600">Phòng Trọ Pro</strong></span>
-                    <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white"><i class="fa-solid fa-user"></i></div>
+                    <span class="text-gray-600">Admin: <strong>Gemini User</strong></span>
+                    <div class="w-10 h-10 bg-indigo-500 rounded-full flex items-center justify-center text-white font-bold">A</div>
                 </div>
             </header>
 
-            <section id="dashboard" class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <section id="dashboard" class="content-section">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                     <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
-                        <p class="text-sm text-gray-500 uppercase font-bold">Tổng doanh thu</p>
-                        <p class="text-2xl font-bold text-gray-800">60,000,000đ</p>
+                        <p class="text-sm text-gray-500 uppercase font-bold">Tổng số phòng</p>
+                        <p class="text-2xl font-bold">40</p>
                     </div>
                     <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
-                        <p class="text-sm text-gray-500 uppercase font-bold">Phòng đã thuê</p>
-                        <p class="text-2xl font-bold text-gray-800">40/40</p>
+                        <p class="text-sm text-gray-500 uppercase font-bold">Đã cho thuê</p>
+                        <p class="text-2xl font-bold">38</p>
                     </div>
                     <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-yellow-500">
-                        <p class="text-sm text-gray-500 uppercase font-bold">Số khách trọ</p>
-                        <p class="text-2xl font-bold text-gray-800">100</p>
+                        <p class="text-sm text-gray-500 uppercase font-bold">Phòng trống</p>
+                        <p class="text-2xl font-bold">2</p>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-purple-500">
-                        <p class="text-sm text-gray-500 uppercase font-bold">Giá điện/nước</p>
-                        <p class="text-sm font-bold text-gray-800">4k / 20k</p>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-red-500">
+                        <p class="text-sm text-gray-500 uppercase font-bold">Doanh thu dự kiến</p>
+                        <p class="text-2xl font-bold">60,000,000đ</p>
                     </div>
                 </div>
                 <div class="bg-white p-6 rounded-xl shadow-sm">
-                    <h3 class="text-lg font-bold mb-4">Biểu đồ doanh thu dự kiến</h3>
+                    <h3 class="text-lg font-bold mb-4">Thống kê doanh thu 6 tháng</h3>
                     <canvas id="revenueChart" height="100"></canvas>
                 </div>
             </section>
 
-            <section id="rooms" class="hidden">
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-4" id="room-grid">
-                    </div>
+            <section id="rooms" class="content-section hidden">
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-gray-50 border-b">
+                            <tr>
+                                <th class="p-4 font-semibold text-gray-600">Số Phòng</th>
+                                <th class="p-4 font-semibold text-gray-600">Loại</th>
+                                <th class="p-4 font-semibold text-gray-600">Giá Thuê</th>
+                                <th class="p-4 font-semibold text-gray-600">Trạng Thái</th>
+                            </tr>
+                        </thead>
+                        <tbody id="room-list"></tbody>
+                    </table>
+                </div>
             </section>
 
-            <section id="tenants" class="hidden">
+            <section id="tenants" class="content-section hidden">
                 <div class="bg-white rounded-xl shadow-sm overflow-hidden">
                     <table class="w-full text-left">
                         <thead class="bg-gray-50 border-b">
                             <tr>
-                                <th class="p-4">Tên khách</th>
-                                <th class="p-4">Phòng</th>
-                                <th class="p-4">SĐT</th>
-                                <th class="p-4">Ngày vào</th>
+                                <th class="p-4 font-semibold text-gray-600">Họ Tên</th>
+                                <th class="p-4 font-semibold text-gray-600">Phòng</th>
+                                <th class="p-4 font-semibold text-gray-600">SĐT</th>
+                                <th class="p-4 font-semibold text-gray-600">Ngày Vào</th>
                             </tr>
                         </thead>
                         <tbody id="tenant-list"></tbody>
@@ -86,52 +89,59 @@
     </div>
 
     <script>
-        // Dữ liệu mẫu ban đầu
-        const CONFIG = { roomPrice: 1500000, elecPrice: 4000, waterPrice: 20000 };
-        const rooms = Array.from({ length: 40 }, (_, i) => ({ id: i + 1, status: 'occupied' }));
-        const tenants = Array.from({ length: 100 }, (_, i) => ({
-            name: `Khách hàng ${i + 1}`,
-            room: Math.floor(Math.random() * 40) + 1,
-            phone: `0901234${i.toString().padStart(3, '0')}`,
-            date: '2025-01-01'
+        // DỮ LIỆU MẪU
+        const ROOM_PRICE = 1500000;
+        const ELECTRIC_PRICE = 4000;
+        const WATER_PRICE = 20000;
+
+        const rooms = Array.from({ length: 40 }, (_, i) => ({
+            id: i + 1,
+            name: `Phòng ${101 + i}`,
+            price: ROOM_PRICE,
+            status: i < 38 ? 'Đã thuê' : 'Trống'
         }));
 
-        function showSection(sectionId) {
-            ['dashboard', 'rooms', 'tenants'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
-            });
-            document.getElementById(sectionId).classList.remove('hidden');
-            document.getElementById('section-title').innerText = 
-                sectionId === 'dashboard' ? 'Dashboard Tổng Quan' : 
-                sectionId === 'rooms' ? 'Quản lý 40 Phòng' : 'Danh sách 100 Khách thuê';
+        const tenants = Array.from({ length: 100 }, (_, i) => ({
+            id: i + 1,
+            name: `Khách hàng ${i + 1}`,
+            room: Math.floor(Math.random() * 40) + 1,
+            phone: `090${Math.floor(1000000 + Math.random() * 9000000)}`,
+            joinDate: '2023-01-10'
+        }));
+
+        // HIỂN THỊ DỮ LIỆU
+        function renderRooms() {
+            const list = document.getElementById('room-list');
+            list.innerHTML = rooms.map(r => `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="p-4 font-medium">${r.name}</td>
+                    <td class="p-4 text-gray-600">Cơ bản</td>
+                    <td class="p-4 font-bold text-indigo-600">${r.price.toLocaleString()}đ</td>
+                    <td class="p-4"><span class="px-2 py-1 rounded-full text-xs ${r.status === 'Trống' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${r.status}</span></td>
+                </tr>
+            `).join('');
         }
 
-        // Render Rooms
-        const roomGrid = document.getElementById('room-grid');
-        rooms.forEach(r => {
-            roomGrid.innerHTML += `
-                <div class="p-4 bg-white border rounded-lg text-center shadow-sm hover:shadow-md transition cursor-pointer">
-                    <div class="text-2xl mb-1 text-blue-500"><i class="fa-solid fa-door-closed"></i></div>
-                    <div class="font-bold text-gray-700">Phòng ${r.id}</div>
-                    <div class="text-xs text-green-500 font-semibold">Đang ở</div>
-                </div>
-            `;
-        });
-
-        // Render Tenants
-        const tenantList = document.getElementById('tenant-list');
-        tenants.forEach(t => {
-            tenantList.innerHTML += `
+        function renderTenants() {
+            const list = document.getElementById('tenant-list');
+            list.innerHTML = tenants.slice(0, 20).map(t => `
                 <tr class="border-b hover:bg-gray-50">
                     <td class="p-4 font-medium">${t.name}</td>
-                    <td class="p-4">P.${t.room}</td>
-                    <td class="p-4 text-gray-500">${t.phone}</td>
-                    <td class="p-4 text-gray-500">${t.date}</td>
+                    <td class="p-4">Phòng ${100 + t.room}</td>
+                    <td class="p-4 text-gray-600">${t.phone}</td>
+                    <td class="p-4 text-sm text-gray-500">${t.joinDate}</td>
                 </tr>
-            `;
-        });
+            `).join('') + `<tr><td colspan="4" class="p-4 text-center text-gray-400 italic">Hiển thị 20/100 khách hàng mẫu...</td></tr>`;
+        }
 
-        // Chart.js
+        function showSection(id) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            const titles = { dashboard: 'Tổng quan', rooms: 'Quản lý phòng', tenants: 'Khách thuê', billing: 'Hóa đơn' };
+            document.getElementById('section-title').innerText = titles[id];
+        }
+
+        // BIỂU ĐỒ
         const ctx = document.getElementById('revenueChart').getContext('2d');
         new Chart(ctx, {
             type: 'line',
@@ -139,14 +149,18 @@
                 labels: ['Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12', 'Tháng 1'],
                 datasets: [{
                     label: 'Doanh thu (VNĐ)',
-                    data: [55, 58, 60, 60, 59, 60].map(v => v * 1000000),
-                    borderColor: '#2563eb',
-                    tension: 0.4,
+                    data: [55000000, 58000000, 57000000, 62000000, 60000000, 65000000],
+                    borderColor: '#4f46e5',
+                    tension: 0.3,
                     fill: true,
-                    backgroundColor: 'rgba(37, 99, 235, 0.1)'
+                    backgroundColor: 'rgba(79, 70, 229, 0.1)'
                 }]
             }
         });
+
+        // Khởi tạo
+        renderRooms();
+        renderTenants();
     </script>
 </body>
 </html>
