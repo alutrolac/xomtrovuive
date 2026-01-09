@@ -3,215 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Quản Lý Nhà Trọ Pro v2</title>
+    <title>Hệ Thống Quản Lý Nhà Trọ Pro v3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .modal { transition: opacity 0.25s ease; }
-        body.modal-active { overflow-x: hidden; overflow-y: visible !important; }
+        .sidebar-link.active { background-color: #4f46e5; border-left: 4px solid #fff; }
+        .status-badge { padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
     </style>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-slate-50 font-sans text-slate-900">
 
-    <div id="login-screen" class="fixed inset-0 bg-indigo-900 flex items-center justify-center z-50">
-        <div class="bg-white p-8 rounded-lg shadow-2xl w-96">
-            <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Đăng Nhập Quản Trị</h2>
-            <input type="text" id="username" placeholder="Tài khoản" class="w-full p-3 mb-4 border rounded focus:outline-indigo-500">
-            <input type="password" id="password" placeholder="Mật khẩu" class="w-full p-3 mb-6 border rounded focus:outline-indigo-500">
-            <button onclick="login()" class="w-full bg-indigo-600 text-white p-3 rounded font-bold hover:bg-indigo-700">ĐĂNG NHẬP</button>
-            <p class="mt-4 text-xs text-center text-gray-400">Gợi ý: admin / admin</p>
+    <div id="login-screen" class="fixed inset-0 bg-slate-900 flex items-center justify-center z-[100]">
+        <div class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md">
+            <div class="text-center mb-8">
+                <div class="inline-block p-4 bg-indigo-100 rounded-full mb-4">
+                    <i class="fas fa-building text-3xl text-indigo-600"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">Quản Lý Nhà Trọ Pro</h2>
+                <p class="text-slate-500">Vui lòng đăng nhập để tiếp tục</p>
+            </div>
+            <div class="space-y-4">
+                <input type="text" id="username" placeholder="Tài khoản" class="w-full p-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
+                <input type="password" id="password" placeholder="Mật khẩu" class="w-full p-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
+                <button onclick="login()" class="w-full bg-indigo-600 text-white p-4 rounded-xl font-bold hover:bg-indigo-700 transition duration-300 shadow-lg shadow-indigo-200">ĐĂNG NHẬP</button>
+            </div>
         </div>
     </div>
 
-    <div id="main-app" class="hidden flex h-screen">
-        <aside class="w-64 bg-slate-900 text-white flex-shrink-0">
-            <div class="p-6 text-xl font-bold border-b border-slate-700 flex items-center">
-                <i class="fas fa-home-user mr-2 text-indigo-400"></i> PMS LITE
+    <div id="main-app" class="hidden flex h-screen overflow-hidden">
+        <aside class="w-64 bg-slate-900 text-white flex-shrink-0 flex flex-col">
+            <div class="p-6 text-xl font-bold tracking-wider flex items-center border-b border-slate-800">
+                <span class="text-indigo-400 mr-2">●</span> SMART RENT
             </div>
-            <nav class="mt-6">
-                <a href="#" onclick="showSection('dashboard')" class="block py-3 px-6 hover:bg-indigo-600 active-nav"><i class="fas fa-chart-pie mr-2"></i> Tổng quan</a>
-                <a href="#" onclick="showSection('rooms')" class="block py-3 px-6 hover:bg-indigo-600"><i class="fas fa-door-closed mr-2"></i> Phòng trọ</a>
-                <a href="#" onclick="showSection('tenants')" class="block py-3 px-6 hover:bg-indigo-600"><i class="fas fa-user-friends mr-2"></i> Khách thuê</a>
-                <a href="#" onclick="showSection('contracts')" class="block py-3 px-6 hover:bg-indigo-600"><i class="fas fa-file-contract mr-2"></i> Hợp đồng</a>
-                <a href="#" onclick="exportReport()" class="block py-3 px-6 hover:bg-green-600 mt-10 text-green-400"><i class="fas fa-file-export mr-2"></i> Xuất Báo Cáo</a>
-                <a href="#" onclick="logout()" class="block py-3 px-6 hover:bg-red-600 text-red-400"><i class="fas fa-sign-out-alt mr-2"></i> Đăng xuất</a>
+            <nav class="mt-6 flex-1">
+                <a href="#" onclick="showSection('dashboard')" class="sidebar-link active block py-3 px-6 hover:bg-slate-800 transition flex items-center"><i class="fas fa-chart-pie mr-3 w-5"></i> Tổng quan</a>
+                <a href="#" onclick="showSection('tenants')" class="sidebar-link block py-3 px-6 hover:bg-slate-800 transition flex items-center"><i class="fas fa-users mr-3 w-5"></i> Khách hàng</a>
+                <a href="#" onclick="showSection('contracts')" class="sidebar-link block py-3 px-6 hover:bg-slate-800 transition flex items-center"><i class="fas fa-file-signature mr-3 w-5"></i> Hợp đồng</a>
             </nav>
+            <div class="p-4 border-t border-slate-800">
+                <button onclick="exportReport()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-sm font-bold mb-2 transition"><i class="fas fa-download mr-2"></i> Xuất Báo Cáo</button>
+                <button onclick="logout()" class="w-full py-2 bg-slate-800 hover:bg-red-600 rounded-lg text-sm font-bold transition"><i class="fas fa-sign-out-alt mr-2"></i> Đăng xuất</button>
+            </div>
         </aside>
 
-        <main class="flex-1 overflow-y-auto p-8 bg-gray-50">
-            <div id="dashboard" class="content-section">
-                <h2 class="text-2xl font-bold mb-6">Dashboard</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="bg-white p-6 rounded shadow border-b-4 border-indigo-500">
-                        <div class="text-gray-500 text-sm uppercase">Tổng Thu Tháng</div>
-                        <div class="text-3xl font-bold text-indigo-700">62.500.000đ</div>
-                    </div>
-                    <div class="bg-white p-6 rounded shadow border-b-4 border-green-500">
-                        <div class="text-gray-500 text-sm uppercase">Tỉ lệ lấp đầy</div>
-                        <div class="text-3xl font-bold text-green-600">95%</div>
-                    </div>
-                    <div class="bg-white p-6 rounded shadow border-b-4 border-orange-500">
-                        <div class="text-gray-500 text-sm uppercase">Số khách hiện tại</div>
-                        <div id="stat-tenant-count" class="text-3xl font-bold text-orange-600">100</div>
-                    </div>
+        <main class="flex-1 overflow-y-auto relative">
+            <header class="sticky top-0 bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center z-10">
+                <h2 id="page-title" class="text-xl font-bold text-slate-800">Tổng quan hệ thống</h2>
+                <div class="flex items-center gap-4">
+                    <span class="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-xs font-bold border border-indigo-100">Năm 2026</span>
                 </div>
-                <div class="bg-white p-6 rounded shadow">
-                    <canvas id="mainChart" height="120"></canvas>
-                </div>
-            </div>
+            </header>
 
-            <div id="tenants" class="content-section hidden">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold">Danh sách khách thuê</h2>
-                    <button onclick="openTenantModal()" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
-                        <i class="fas fa-plus mr-2"></i>Thêm khách mới
-                    </button>
+            <div class="p-8">
+                <div id="dashboard" class="content-section space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                            <p class="text-slate-500 text-xs font-bold uppercase mb-2">Tổng doanh thu</p>
+                            <h3 class="text-2xl font-black text-indigo-600">60.000.000đ</h3>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                            <p class="text-slate-500 text-xs font-bold uppercase mb-2">Phòng trống</p>
+                            <h3 class="text-2xl font-black text-emerald-600">2 / 40</h3>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                            <p class="text-slate-500 text-xs font-bold uppercase mb-2">Hợp đồng hết hạn</p>
+                            <h3 id="stat-expired" class="text-2xl font-black text-rose-600">0</h3>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                            <p class="text-slate-500 text-xs font-bold uppercase mb-2">Khách lưu trú</p>
+                            <h3 id="stat-tenant-count" class="text-2xl font-black text-amber-600">100</h3>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                        <canvas id="revenueChart" height="100"></canvas>
+                    </div>
                 </div>
-                <div class="bg-white rounded shadow overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-gray-100 border-b">
-                            <tr>
-                                <th class="p-4">Họ Tên</th>
-                                <th class="p-4">Phòng</th>
-                                <th class="p-4">Số điện thoại</th>
-                                <th class="p-4">Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tenant-table-body"></tbody>
-                    </table>
+
+                <div id="tenants" class="content-section hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-bold">Danh sách 100 khách trọ</h3>
+                        <button onclick="openModal('tenant')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-indigo-700 shadow-md">
+                            <i class="fas fa-user-plus mr-2"></i>Thêm khách
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50 text-slate-500 uppercase text-xs font-bold">
+                                <tr>
+                                    <th class="px-6 py-4">Tên khách</th>
+                                    <th class="px-6 py-4">Phòng</th>
+                                    <th class="px-6 py-4">Điện thoại</th>
+                                    <th class="px-6 py-4">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tenant-list" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="contracts" class="content-section hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-bold">Quản lý hợp đồng kinh doanh</h3>
+                        <button onclick="openModal('contract')" class="bg-emerald-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-emerald-700 shadow-md">
+                            <i class="fas fa-file-signature mr-2"></i>Lập hợp đồng mới
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 gap-4" id="contract-list"></div>
                 </div>
             </div>
         </main>
     </div>
 
-    <div id="tenant-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white p-8 rounded-lg w-1/3">
-            <h3 id="modal-title" class="text-xl font-bold mb-4">Thêm khách thuê</h3>
-            <div class="space-y-4">
-                <input type="hidden" id="edit-index">
-                <div><label class="block text-sm font-medium">Họ tên</label><input id="m-name" type="text" class="w-full border p-2 rounded"></div>
-                <div><label class="block text-sm font-medium">Số điện thoại</label><input id="m-phone" type="text" class="w-full border p-2 rounded"></div>
-                <div><label class="block text-sm font-medium">Số phòng (1-40)</label><input id="m-room" type="number" class="w-full border p-2 rounded"></div>
-                <div class="flex justify-end space-x-2">
-                    <button onclick="closeModal()" class="px-4 py-2 bg-gray-300 rounded">Hủy</button>
-                    <button onclick="saveTenant()" class="px-4 py-2 bg-indigo-600 text-white rounded">Lưu lại</button>
+    <div id="system-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-[200] flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div id="modal-header" class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                <h3 id="modal-title" class="font-bold text-slate-800">Tiêu đề</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-rose-500"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-6 space-y-4" id="modal-body">
                 </div>
+            <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+                <button onclick="closeModal()" class="px-4 py-2 text-slate-600 font-bold">Hủy</button>
+                <button id="modal-save-btn" class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700">Lưu dữ liệu</button>
             </div>
         </div>
     </div>
 
     <script>
-        // CONFIG & DATA
+        // --- DỮ LIỆU ---
         let tenants = JSON.parse(localStorage.getItem('tenants')) || [];
-        
-        // Khởi tạo 100 khách mẫu nếu chưa có dữ liệu
+        let contracts = JSON.parse(localStorage.getItem('contracts')) || [];
+
+        // Khởi tạo dữ liệu mẫu nếu rỗng
         if (tenants.length === 0) {
             for(let i=1; i<=100; i++) {
-                tenants.push({ name: `Khách hàng ${i}`, phone: `090${1000000+i}`, room: Math.floor(Math.random() * 40) + 1 });
+                tenants.push({ id: Date.now()+i, name: `Khách trọ ${i}`, phone: `090${1234567+i}`, room: Math.floor(Math.random() * 40) + 101 });
             }
             localStorage.setItem('tenants', JSON.stringify(tenants));
         }
+        
+        if (contracts.length === 0) {
+            contracts.push({ id: 1, tenantName: 'Khách trọ 1', room: 101, deposit: 1500000, start: '2025-01-01', end: '2026-01-01' });
+            localStorage.setItem('contracts', JSON.stringify(contracts));
+        }
 
-        // AUTH
+        // --- AUTH ---
         function login() {
             const u = document.getElementById('username').value;
             const p = document.getElementById('password').value;
             if(u === 'admin' && p === 'admin') {
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('main-app').classList.remove('hidden');
-                initApp();
-            } else { alert('Sai tài khoản hoặc mật khẩu!'); }
+                renderAll();
+            } else { alert('Sai tài khoản hoặc mật khẩu (admin/admin)'); }
         }
-
         function logout() { location.reload(); }
 
-        // NAVIGATION
+        // --- NAVIGATION ---
         function showSection(id) {
             document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
             document.getElementById(id).classList.remove('hidden');
+            event.currentTarget.classList.add('active');
+            document.getElementById('page-title').innerText = event.currentTarget.innerText;
         }
 
-        // CRUD TENANTS
+        // --- RENDER FUNCTIONS ---
+        function renderAll() {
+            renderTenants();
+            renderContracts();
+            updateStats();
+            initChart();
+        }
+
         function renderTenants() {
-            const body = document.getElementById('tenant-table-body');
-            body.innerHTML = tenants.map((t, index) => `
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="p-4">${t.name}</td>
-                    <td class="p-4 font-bold text-indigo-600">P.${t.room}</td>
-                    <td class="p-4">${t.phone}</td>
-                    <td class="p-4">
-                        <button onclick="editTenant(${index})" class="text-blue-600 mr-3"><i class="fas fa-edit"></i></button>
-                        <button onclick="deleteTenant(${index})" class="text-red-600"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
-            `).join('');
-            document.getElementById('stat-tenant-count').innerText = tenants.length;
-        }
-
-        function openTenantModal() {
-            document.getElementById('edit-index').value = "-1";
-            document.getElementById('m-name').value = "";
-            document.getElementById('m-phone').value = "";
-            document.getElementById('m-room').value = "";
-            document.getElementById('tenant-modal').classList.remove('hidden');
-        }
-
-        function closeModal() { document.getElementById('tenant-modal').classList.add('hidden'); }
-
-        function saveTenant() {
-            const index = document.getElementById('edit-index').value;
-            const newT = {
-                name: document.getElementById('m-name').value,
-                phone: document.getElementById('m-phone').value,
-                room: document.getElementById('m-room').value
-            };
-
-            if(index === "-1") tenants.unshift(newT);
-            else tenants[index] = newT;
-
-            localStorage.setItem('tenants', JSON.stringify(tenants));
-            renderTenants();
-            closeModal();
-        }
-
-        function deleteTenant(index) {
-            if(confirm('Xóa khách này?')) {
-                tenants.splice(index, 1);
-                localStorage.setItem('tenants', JSON.stringify(tenants));
-                renderTenants();
-            }
-        }
-
-        function editTenant(index) {
-            const t = tenants[index];
-            document.getElementById('edit-index').value = index;
-            document.getElementById('m-name').value = t.name;
-            document.getElementById('m-phone').value = t.phone;
-            document.getElementById('m-room').value = t.room;
-            document.getElementById('tenant-modal').classList.remove('hidden');
-        }
-
-        function exportReport() {
-            let csv = "Ho ten,Phong,SDT\n";
-            tenants.forEach(t => { csv += `${t.name},${t.room},${t.phone}\n`; });
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = "Bao-cao-khach-tro.csv";
-            link.click();
-        }
-
-        function initApp() {
-            renderTenants();
-            new Chart(document.getElementById('mainChart'), {
-                type: 'bar',
-                data: {
-                    labels: ['T8', 'T9', 'T10', 'T11', 'T12', 'T1'],
-                    datasets: [{ label: 'Doanh thu triệu đồng', data: [55, 59, 60, 62, 58, 65], backgroundColor: '#4f46e5' }]
-                }
-            });
-        }
-    </script>
-</body>
-</html>
+            const list = document.getElementById('tenant-list');
+            list.innerHTML = tenants.map((t, index) => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="px-6 py-4 font-bold text-slate-700">${t.name}</td>
+                    <td class
