@@ -1,80 +1,152 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Quản lý nhà trọ</title>
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link rel="stylesheet" href="styles.css"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phòng Trọ Pro - Hệ Thống Quản Lý</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .sidebar-item:hover { background-color: #374151; }
+        .active { background-color: #2563eb; }
+    </style>
 </head>
 <body>
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="logo">
-      <i class="fa-solid fa-building"></i>
-      <span>Nhà trọ Pro</span>
+    <div class="flex h-screen overflow-hidden">
+        <aside class="w-64 bg-gray-900 text-white flex flex-col">
+            <div class="p-6 text-2xl font-bold border-b border-gray-800 text-blue-400">
+                <i class="fa-solid fa-house-chimney mr-2"></i>PT-PRO
+            </div>
+            <nav class="flex-1 p-4 space-y-2">
+                <a href="#" onclick="showSection('dashboard')" class="sidebar-item block p-3 rounded active transition"><i class="fa-solid fa-chart-line mr-3"></i>Dashboard</a>
+                <a href="#" onclick="showSection('rooms')" class="sidebar-item block p-3 rounded transition"><i class="fa-solid fa-door-open mr-3"></i>Quản lý phòng</a>
+                <a href="#" onclick="showSection('tenants')" class="sidebar-item block p-3 rounded transition"><i class="fa-solid fa-users mr-3"></i>Khách thuê</a>
+                <a href="#" onclick="showSection('bills')" class="sidebar-item block p-3 rounded transition"><i class="fa-solid fa-file-invoice-dollar mr-3"></i>Hóa đơn</a>
+            </nav>
+        </aside>
+
+        <main class="flex-1 overflow-y-auto p-8">
+            <header class="flex justify-between items-center mb-8">
+                <h2 id="section-title" class="text-3xl font-bold text-gray-800">Dashboard Tổng Quan</h2>
+                <div class="flex items-center space-x-4">
+                    <span class="text-gray-600">Admin: <strong class="text-blue-600">Phòng Trọ Pro</strong></span>
+                    <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white"><i class="fa-solid fa-user"></i></div>
+                </div>
+            </header>
+
+            <section id="dashboard" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
+                        <p class="text-sm text-gray-500 uppercase font-bold">Tổng doanh thu</p>
+                        <p class="text-2xl font-bold text-gray-800">60,000,000đ</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
+                        <p class="text-sm text-gray-500 uppercase font-bold">Phòng đã thuê</p>
+                        <p class="text-2xl font-bold text-gray-800">40/40</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-yellow-500">
+                        <p class="text-sm text-gray-500 uppercase font-bold">Số khách trọ</p>
+                        <p class="text-2xl font-bold text-gray-800">100</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-purple-500">
+                        <p class="text-sm text-gray-500 uppercase font-bold">Giá điện/nước</p>
+                        <p class="text-sm font-bold text-gray-800">4k / 20k</p>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <h3 class="text-lg font-bold mb-4">Biểu đồ doanh thu dự kiến</h3>
+                    <canvas id="revenueChart" height="100"></canvas>
+                </div>
+            </section>
+
+            <section id="rooms" class="hidden">
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4" id="room-grid">
+                    </div>
+            </section>
+
+            <section id="tenants" class="hidden">
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-50 border-b">
+                            <tr>
+                                <th class="p-4">Tên khách</th>
+                                <th class="p-4">Phòng</th>
+                                <th class="p-4">SĐT</th>
+                                <th class="p-4">Ngày vào</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tenant-list"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
     </div>
-    <ul class="nav">
-      <li class="active" data-view="dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</li>
-      <li data-view="rooms"><i class="fa-solid fa-door-closed"></i> Phòng</li>
-      <li data-view="tenants"><i class="fa-solid fa-users"></i> Khách trọ</li>
-      <li data-view="payments"><i class="fa-solid fa-file-invoice-dollar"></i> Thanh toán</li>
-      <li data-view="reports"><i class="fa-solid fa-chart-pie"></i> Báo cáo</li>
-      <li data-view="settings"><i class="fa-solid fa-gear"></i> Cấu hình</li>
-    </ul>
-  </aside>
 
-  <!-- Main content -->
-  <div class="main">
-    <header class="topbar">
-      <h1>Quản lý nhà trọ</h1>
-      <div class="actions">
-        <button id="btnImport"><i class="fa-solid fa-upload"></i> Import</button>
-        <button id="btnExport"><i class="fa-solid fa-download"></i> Export</button>
-        <button id="btnReset"><i class="fa-solid fa-rotate-left"></i> Reset</button>
-      </div>
-    </header>
+    <script>
+        // Dữ liệu mẫu ban đầu
+        const CONFIG = { roomPrice: 1500000, elecPrice: 4000, waterPrice: 20000 };
+        const rooms = Array.from({ length: 40 }, (_, i) => ({ id: i + 1, status: 'occupied' }));
+        const tenants = Array.from({ length: 100 }, (_, i) => ({
+            name: `Khách hàng ${i + 1}`,
+            room: Math.floor(Math.random() * 40) + 1,
+            phone: `0901234${i.toString().padStart(3, '0')}`,
+            date: '2025-01-01'
+        }));
 
-    <main class="content">
-      <!-- Dashboard -->
-      <section id="view-dashboard" class="view active">
-        <h2><i class="fa-solid fa-chart-line"></i> Tổng quan</h2>
-        <div class="cards">
-          <div class="card"><div class="card-title">Tổng số phòng</div><div class="card-value" id="statRooms">0</div></div>
-          <div class="card"><div class="card-title">Phòng đang thuê</div><div class="card-value" id="statOccupied">0</div></div>
-          <div class="card"><div class="card-title">Tổng khách trọ</div><div class="card-value" id="statTenants">0</div></div>
-          <div class="card"><div class="card-title">Doanh thu tháng</div><div class="card-value" id="statRevenue">0</div></div>
-        </div>
-        <div class="panel">
-          <h3><i class="fa-solid fa-file-invoice"></i> Hóa đơn gần đây</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Phòng</th><th>Tháng</th><th>Tiền phòng</th><th>Điện</th><th>Nước</th><th>Tổng</th><th>Trạng thái</th>
-              </tr>
-            </thead>
-            <tbody id="recentInvoices"></tbody>
-          </table>
-        </div>
-      </section>
+        function showSection(sectionId) {
+            ['dashboard', 'rooms', 'tenants'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(sectionId).classList.remove('hidden');
+            document.getElementById('section-title').innerText = 
+                sectionId === 'dashboard' ? 'Dashboard Tổng Quan' : 
+                sectionId === 'rooms' ? 'Quản lý 40 Phòng' : 'Danh sách 100 Khách thuê';
+        }
 
-      <!-- Các view khác giữ nguyên -->
-      <section id="view-rooms" class="view">...</section>
-      <section id="view-tenants" class="view">...</section>
-      <section id="view-payments" class="view">...</section>
-      <section id="view-reports" class="view">...</section>
-      <section id="view-settings" class="view">...</section>
-    </main>
+        // Render Rooms
+        const roomGrid = document.getElementById('room-grid');
+        rooms.forEach(r => {
+            roomGrid.innerHTML += `
+                <div class="p-4 bg-white border rounded-lg text-center shadow-sm hover:shadow-md transition cursor-pointer">
+                    <div class="text-2xl mb-1 text-blue-500"><i class="fa-solid fa-door-closed"></i></div>
+                    <div class="font-bold text-gray-700">Phòng ${r.id}</div>
+                    <div class="text-xs text-green-500 font-semibold">Đang ở</div>
+                </div>
+            `;
+        });
 
-    <footer class="footer">
-      <span>© 2026 Quản lý nhà trọ Pro</span>
-    </footer>
-  </div>
+        // Render Tenants
+        const tenantList = document.getElementById('tenant-list');
+        tenants.forEach(t => {
+            tenantList.innerHTML += `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="p-4 font-medium">${t.name}</td>
+                    <td class="p-4">P.${t.room}</td>
+                    <td class="p-4 text-gray-500">${t.phone}</td>
+                    <td class="p-4 text-gray-500">${t.date}</td>
+                </tr>
+            `;
+        });
 
-  <div class="toast" id="toast"></div>
-  <script src="app.js"></script>
+        // Chart.js
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12', 'Tháng 1'],
+                datasets: [{
+                    label: 'Doanh thu (VNĐ)',
+                    data: [55, 58, 60, 60, 59, 60].map(v => v * 1000000),
+                    borderColor: '#2563eb',
+                    tension: 0.4,
+                    fill: true,
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)'
+                }]
+            }
+        });
+    </script>
 </body>
 </html>
