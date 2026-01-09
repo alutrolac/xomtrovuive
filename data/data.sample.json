@@ -1,1 +1,18 @@
 
+{
+  "config": {
+    "electricPrice": 4000,
+    "waterPrice": 20000,
+    "defaultRoomPrice": 1500000
+  },
+  "rooms": [
+    { "id": 1, "code": "P01", "capacity": 3, "price": 1500000, "active": true },
+    { "id": 2, "code": "P02", "capacity": 3, "price": 1500000, "active": true }
+    // ... tiếp tục đến P40
+  ],
+  "tenants": [
+    { "id": 1, "name": "Khách 1", "phone": "091000001", "roomId": 1, "startDate": "2025-08-01", "active": true }
+    // ... tổng 100 khách
+  ],
+  "invoices": []
+}
