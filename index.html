@@ -3,183 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Quản Lý Nhà Trọ Pro v3</title>
+    <title>Hệ Thống Quản Lý Nhà Trọ Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .sidebar-link.active { background-color: #4f46e5; border-left: 4px solid #fff; }
-        .status-badge { padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
-    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-slate-50 font-sans text-slate-900">
-
-    <div id="login-screen" class="fixed inset-0 bg-slate-900 flex items-center justify-center z-[100]">
-        <div class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md">
-            <div class="text-center mb-8">
-                <div class="inline-block p-4 bg-indigo-100 rounded-full mb-4">
-                    <i class="fas fa-building text-3xl text-indigo-600"></i>
-                </div>
-                <h2 class="text-2xl font-bold text-slate-800">Quản Lý Nhà Trọ Pro</h2>
-                <p class="text-slate-500">Vui lòng đăng nhập để tiếp tục</p>
-            </div>
-            <div class="space-y-4">
-                <input type="text" id="username" placeholder="Tài khoản" class="w-full p-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
-                <input type="password" id="password" placeholder="Mật khẩu" class="w-full p-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
-                <button onclick="login()" class="w-full bg-indigo-600 text-white p-4 rounded-xl font-bold hover:bg-indigo-700 transition duration-300 shadow-lg shadow-indigo-200">ĐĂNG NHẬP</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="main-app" class="hidden flex h-screen overflow-hidden">
-        <aside class="w-64 bg-slate-900 text-white flex-shrink-0 flex flex-col">
-            <div class="p-6 text-xl font-bold tracking-wider flex items-center border-b border-slate-800">
-                <span class="text-indigo-400 mr-2">●</span> SMART RENT
-            </div>
-            <nav class="mt-6 flex-1">
-                <a href="#" onclick="showSection('dashboard')" class="sidebar-link active block py-3 px-6 hover:bg-slate-800 transition flex items-center"><i class="fas fa-chart-pie mr-3 w-5"></i> Tổng quan</a>
-                <a href="#" onclick="showSection('tenants')" class="sidebar-link block py-3 px-6 hover:bg-slate-800 transition flex items-center"><i class="fas fa-users mr-3 w-5"></i> Khách hàng</a>
-                <a href="#" onclick="showSection('contracts')" class="sidebar-link block py-3 px-6 hover:bg-slate-800 transition flex items-center"><i class="fas fa-file-signature mr-3 w-5"></i> Hợp đồng</a>
+<body class="bg-gray-50">
+    <div class="min-h-screen flex">
+        <div class="w-64 bg-indigo-800 text-white p-6 hidden md:block">
+            <h1 class="text-2xl font-bold mb-10">SmartHostel</h1>
+            <nav class="space-y-4">
+                <a href="#" class="block py-2.5 px-4 rounded bg-indigo-900 transition"><i class="fas fa-home mr-2"></i> Dashboard</a>
+                <a href="#" class="block py-2.5 px-4 rounded hover:bg-indigo-700 transition"><i class="fas fa-user-friends mr-2"></i> Khách thuê</a>
+                <a href="#" class="block py-2.5 px-4 rounded hover:bg-indigo-700 transition"><i class="fas fa-file-invoice-dollar mr-2"></i> Hóa đơn</a>
             </nav>
-            <div class="p-4 border-t border-slate-800">
-                <button onclick="exportReport()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-sm font-bold mb-2 transition"><i class="fas fa-download mr-2"></i> Xuất Báo Cáo</button>
-                <button onclick="logout()" class="w-full py-2 bg-slate-800 hover:bg-red-600 rounded-lg text-sm font-bold transition"><i class="fas fa-sign-out-alt mr-2"></i> Đăng xuất</button>
-            </div>
-        </aside>
+        </div>
 
-        <main class="flex-1 overflow-y-auto relative">
-            <header class="sticky top-0 bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center z-10">
-                <h2 id="page-title" class="text-xl font-bold text-slate-800">Tổng quan hệ thống</h2>
-                <div class="flex items-center gap-4">
-                    <span class="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-xs font-bold border border-indigo-100">Năm 2026</span>
-                </div>
+        <div class="flex-1 p-8">
+            <header class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-800">Quản Lý Phòng Trọ</h2>
+                <button onclick="openModal()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 shadow-lg">
+                    + Thêm Phòng Mới
+                </button>
             </header>
 
-            <div class="p-8">
-                <div id="dashboard" class="content-section space-y-8">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                            <p class="text-slate-500 text-xs font-bold uppercase mb-2">Tổng doanh thu</p>
-                            <h3 class="text-2xl font-black text-indigo-600">60.000.000đ</h3>
-                        </div>
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                            <p class="text-slate-500 text-xs font-bold uppercase mb-2">Phòng trống</p>
-                            <h3 class="text-2xl font-black text-emerald-600">2 / 40</h3>
-                        </div>
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                            <p class="text-slate-500 text-xs font-bold uppercase mb-2">Hợp đồng hết hạn</p>
-                            <h3 id="stat-expired" class="text-2xl font-black text-rose-600">0</h3>
-                        </div>
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                            <p class="text-slate-500 text-xs font-bold uppercase mb-2">Khách lưu trú</p>
-                            <h3 id="stat-tenant-count" class="text-2xl font-black text-amber-600">100</h3>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                        <canvas id="revenueChart" height="100"></canvas>
-                    </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
+                    <p class="text-gray-500">Giá Điện</p>
+                    <p class="text-2xl font-bold">4.000đ / kWh</p>
                 </div>
-
-                <div id="tenants" class="content-section hidden">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-lg font-bold">Danh sách 100 khách trọ</h3>
-                        <button onclick="openModal('tenant')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-indigo-700 shadow-md">
-                            <i class="fas fa-user-plus mr-2"></i>Thêm khách
-                        </button>
-                    </div>
-                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-                        <table class="w-full text-left">
-                            <thead class="bg-slate-50 text-slate-500 uppercase text-xs font-bold">
-                                <tr>
-                                    <th class="px-6 py-4">Tên khách</th>
-                                    <th class="px-6 py-4">Phòng</th>
-                                    <th class="px-6 py-4">Điện thoại</th>
-                                    <th class="px-6 py-4">Hành động</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tenant-list" class="divide-y divide-slate-100"></tbody>
-                        </table>
-                    </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
+                    <p class="text-gray-500">Giá Nước</p>
+                    <p class="text-2xl font-bold">20.000đ / m3</p>
                 </div>
-
-                <div id="contracts" class="content-section hidden">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-lg font-bold">Quản lý hợp đồng kinh doanh</h3>
-                        <button onclick="openModal('contract')" class="bg-emerald-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-emerald-700 shadow-md">
-                            <i class="fas fa-file-signature mr-2"></i>Lập hợp đồng mới
-                        </button>
-                    </div>
-                    <div class="grid grid-cols-1 gap-4" id="contract-list"></div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-purple-500">
+                    <p class="text-gray-500">Tiền Phòng Cố Định</p>
+                    <p class="text-2xl font-bold">1.500.000đ</p>
                 </div>
             </div>
-        </main>
-    </div>
 
-    <div id="system-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-[200] flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-            <div id="modal-header" class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
-                <h3 id="modal-title" class="font-bold text-slate-800">Tiêu đề</h3>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-rose-500"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="p-6 space-y-4" id="modal-body">
-                </div>
-            <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
-                <button onclick="closeModal()" class="px-4 py-2 text-slate-600 font-bold">Hủy</button>
-                <button id="modal-save-btn" class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700">Lưu dữ liệu</button>
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-100 border-b">
+                        <tr>
+                            <th class="p-4">Tên Phòng</th>
+                            <th class="p-4">Số Điện (Mới)</th>
+                            <th class="p-4">Số Nước (Mới)</th>
+                            <th class="p-4">Tổng Tiền</th>
+                            <th class="p-4">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="roomTable">
+                        </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <script>
-        // --- DỮ LIỆU ---
-        let tenants = JSON.parse(localStorage.getItem('tenants')) || [];
-        let contracts = JSON.parse(localStorage.getItem('contracts')) || [];
+        const PRICES = { dien: 4000, nuoc: 20000, phong: 1500000 };
+        let rooms = JSON.parse(localStorage.getItem('rooms')) || [];
 
-        // Khởi tạo dữ liệu mẫu nếu rỗng
-        if (tenants.length === 0) {
-            for(let i=1; i<=100; i++) {
-                tenants.push({ id: Date.now()+i, name: `Khách trọ ${i}`, phone: `090${1234567+i}`, room: Math.floor(Math.random() * 40) + 101 });
+        function calculateBill(dienMoi, nuocMoi) {
+            return (dienMoi * PRICES.dien) + (nuocMoi * PRICES.nuoc) + PRICES.phong;
+        }
+
+        function renderRooms() {
+            const table = document.getElementById('roomTable');
+            table.innerHTML = rooms.map((room, index) => `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="p-4 font-semibold">${room.name}</td>
+                    <td class="p-4">${room.dien} kWh</td>
+                    <td class="p-4">${room.nuoc} m3</td>
+                    <td class="p-4 text-indigo-600 font-bold">${calculateBill(room.dien, room.nuoc).toLocaleString()}đ</td>
+                    <td class="p-4 text-red-500 cursor-pointer" onclick="deleteRoom(${index})">Xóa</td>
+                </tr>
+            `).join('');
+            localStorage.setItem('rooms', JSON.stringify(rooms));
+        }
+
+        function openModal() {
+            const name = prompt("Nhập tên phòng (VD: Phòng 101):");
+            const dien = prompt("Nhập số điện tiêu thụ:");
+            const nuoc = prompt("Nhập số nước tiêu thụ:");
+            
+            if(name && dien && nuoc) {
+                rooms.push({ name, dien: Number(dien), nuoc: Number(nuoc) });
+                renderRooms();
             }
-            localStorage.setItem('tenants', JSON.stringify(tenants));
-        }
-        
-        if (contracts.length === 0) {
-            contracts.push({ id: 1, tenantName: 'Khách trọ 1', room: 101, deposit: 1500000, start: '2025-01-01', end: '2026-01-01' });
-            localStorage.setItem('contracts', JSON.stringify(contracts));
         }
 
-        // --- AUTH ---
-        function login() {
-            const u = document.getElementById('username').value;
-            const p = document.getElementById('password').value;
-            if(u === 'admin' && p === 'admin') {
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('main-app').classList.remove('hidden');
-                renderAll();
-            } else { alert('Sai tài khoản hoặc mật khẩu (admin/admin)'); }
-        }
-        function logout() { location.reload(); }
-
-        // --- NAVIGATION ---
-        function showSection(id) {
-            document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
-            document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
-            document.getElementById(id).classList.remove('hidden');
-            event.currentTarget.classList.add('active');
-            document.getElementById('page-title').innerText = event.currentTarget.innerText;
+        function deleteRoom(index) {
+            if(confirm('Bạn có chắc muốn xóa?')) {
+                rooms.splice(index, 1);
+                renderRooms();
+            }
         }
 
-        // --- RENDER FUNCTIONS ---
-        function renderAll() {
-            renderTenants();
-            renderContracts();
-            updateStats();
-            initChart();
-        }
-
-        function renderTenants() {
-            const list = document.getElementById('tenant-list');
-            list.innerHTML = tenants.map((t, index) => `
-                <tr class="hover:bg-slate-50 transition">
-                    <td class="px-6 py-4 font-bold text-slate-700">${t.name}</td>
-                    <td class
+        renderRooms();
+    </script>
+</body>
+</html>
