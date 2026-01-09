@@ -1,361 +1,196 @@
-// Utility
-const $ = (sel) => document.querySelector(sel);
-const $$ = (sel) => Array.from(document.querySelectorAll(sel));
-const currency = (v) => (v || 0).toLocaleString("vi-VN") + " VND";
-
-// State
+// ---------- Storage & State ----------
+const KEY = 'boarding_house_app_v2';
 const state = {
-  auth: { loggedIn: false },
-  mode: DEFAULT_DATA_MODE,
-  fees: { ...DEFAULT_FEES },
+  rooms: [],
   tenants: [],
-  rooms: []
+  payments: [],
+  settings: { roomDefaultPrice: 1500000, elecRate: 4000, waterRate: 20000 },
+  seq: { room: 1, tenant: 1, payment: 1 }
 };
 
-// ---- Auth ----
-function initAuth() {
-  const form = $("#loginForm");
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const u = $("#username").value.trim();
-    const p = $("#password").value.trim();
-    if (u === AUTH_CONFIG.username && p === AUTH_CONFIG.password) {
-      state.auth.loggedIn = true;
-      $("#authContainer").style.display = "none";
-      $("#mainLayout").style.display = "grid";
-      initApp();
-    } else {
-      alert("Sai tài khoản hoặc mật khẩu.");
+// ---------- Toast ----------
+const toastEl = document.getElementById('toast');
+function toast(msg, type = 'success') {
+  toastEl.textContent = msg;
+  toastEl.className = `toast show ${type}`;
+  setTimeout(() => { toastEl.className = 'toast hidden'; }, 2000);
+}
+
+// ---------- Load/Save ----------
+function load() {
+  const raw = localStorage.getItem(KEY);
+  if (raw) {
+    const data = JSON.parse(raw);
+    Object.assign(state, data);
+  } else {
+    seedSampleData();
+    save(true);
+  }
+}
+function save(silent = false) {
+  localStorage.setItem(KEY, JSON.stringify(state));
+  renderAll();
+  if (!silent) toast('Lưu thành công');
+}
+function resetAll() {
+  localStorage.removeItem(KEY);
+  state.rooms = [];
+  state.tenants = [];
+  state.payments = [];
+  state.settings = { roomDefaultPrice: 1500000, elecRate: 4000, waterRate: 20000 };
+  state.seq = { room: 1, tenant: 1, payment: 1 };
+  seedSampleData();
+  save();
+}
+
+// ---------- Sample Data ----------
+function seedSampleData() {
+  for (let i = 1; i <= 40; i++) {
+    state.rooms.push({
+      id: state.seq.room++,
+      name: 'P' + (100 + i),
+      price: state.settings.roomDefaultPrice,
+      status: 'vacant'
+    });
+  }
+  const roomCapacity = {};
+  for (let i = 1; i <= 100; i++) {
+    const name = 'Khách ' + i;
+    const phone = '09' + String(10000000 + i);
+    let roomId = null;
+    for (let attempt = 0; attempt < 200; attempt++) {
+      const r = state.rooms[Math.floor(Math.random() * state.rooms.length)];
+      const count = roomCapacity[r.id] || 0;
+      if (count < 3) { roomId = r.id; roomCapacity[r.id] = count + 1; break; }
     }
-  });
-  $("#logoutBtn").addEventListener("click", () => {
-    state.auth.loggedIn = false;
-    location.reload();
-  });
-}
-
-// ---- Data generation (local) ----
-function randomName(i) {
-  const fn = ["Nguyễn", "Trần", "Lê", "Phạm", "Hoàng", "Võ", "Đặng", "Bùi", "Đỗ", "Huỳnh"];
-  const ln = ["An", "Bình", "Châu", "Duy", "Giang", "Hà", "Hưng", "Khánh", "Long", "Minh", "Nam", "Phúc", "Quân", "Tâm", "Trang"];
-  return `${fn[i % fn.length]} ${ln[i % ln.length]} ${i}`;
-}
-function generateLocalData(baseTenants, baseRooms) {
-  const rooms = [];
-  // Ensure 40 rooms: 101-140
-  for (let r = 101; r <= 140; r++) {
-    const occupied = Math.random() < 0.7; // 70% occupancy
-    rooms.push({
-      room: String(r),
-      status: occupied ? "occupied" : "vacant",
-      electricKwh: occupied ? Math.floor(50 + Math.random() * 60) : 0,
-      waterM3: occupied ? Math.floor(3 + Math.random() * 6) : 0
-    });
+    const today = new Date();
+    const moveIn = new Date(today.getFullYear(), today.getMonth() - Math.floor(Math.random()*6), 1);
+    const tenant = {
+      id: state.seq.tenant++,
+      name, phone, roomId,
+      moveIn: moveIn.toISOString().slice(0,10),
+      moveOut: ''
+    };
+    state.tenants.push(tenant);
   }
-  // Merge base rooms
-  if (Array.isArray(baseRooms)) {
-    baseRooms.forEach(br => {
-      const idx = rooms.findIndex(x => x.room === String(br.room));
-      if (idx >= 0) rooms[idx] = { ...rooms[idx], ...br };
-    });
+  const occupiedSet = new Set(state.tenants.map(t => t.roomId));
+  state.rooms.forEach(r => { if (occupiedSet.has(r.id)) r.status = 'occupied'; });
+
+  const today = new Date();
+  const months = [];
+  for (let m = 0; m < 3; m++) {
+    const d = new Date(today.getFullYear(), today.getMonth() - m, 1);
+    months.push(d.toISOString().slice(0,7));
   }
-
-  const tenants = [];
-  // Ensure 100 tenants assigned to occupied rooms
-  const occRooms = rooms.filter(r => r.status === "occupied").map(r => r.room);
-  for (let i = 0; i < 100; i++) {
-    const room = occRooms[i % occRooms.length];
-    tenants.push({
-      name: randomName(i + 1),
-      phone: "09" + Math.floor(10000000 + Math.random() * 89999999),
-      email: `user${i + 1}@example.com`,
-      room: room,
-      moveIn: new Date(2024, Math.floor(Math.random() * 12), Math.floor(1 + Math.random() * 27))
-        .toISOString().slice(0, 10)
-    });
-  }
-  // Merge base tenants
-  if (Array.isArray(baseTenants)) {
-    baseTenants.forEach(bt => tenants.unshift(bt));
-  }
-
-  return { tenants, rooms };
-}
-
-// ---- Google Sheets CSV fetch ----
-async function fetchCSV(url) {
-  const res = await fetch(url);
-  const text = await res.text();
-  // Simple CSV to array of objects
-  const lines = text.trim().split(/\r?\n/);
-  const headers = lines.shift().split(",").map(h => h.trim());
-  const rows = lines.map(line => {
-    const cols = line.split(",").map(c => c.trim());
-    const obj = {};
-    headers.forEach((h, i) => obj[h] = cols[i]);
-    return obj;
-  });
-  return rows;
-}
-
-async function loadData(mode) {
-  if (mode === "sheets" && SHEET_CSV_URLS.tenants && SHEET_CSV_URLS.rooms && SHEET_CSV_URLS.settings) {
-    try {
-      const [tenants, rooms, settings] = await Promise.all([
-        fetchCSV(SHEET_CSV_URLS.tenants),
-        fetchCSV(SHEET_CSV_URLS.rooms),
-        fetchCSV(SHEET_CSV_URLS.settings)
-      ]);
-      state.tenants = tenants.map(t => ({
-        name: t.name || t["Họ tên"] || "",
-        phone: t.phone || t["Điện thoại"] || "",
-        email: t.email || t["Email"] || "",
-        room: String(t.room || t["Phòng"] || ""),
-        moveIn: t.moveIn || t["Ngày vào"] || ""
-      }));
-      state.rooms = rooms.map(r => ({
-        room: String(r.room || r["Phòng"] || ""),
-        status: (r.status || r["Trạng thái"] || "occupied").toLowerCase(),
-        electricKwh: Number(r.electricKwh || r["Điện(kWh)"] || 0),
-        waterM3: Number(r.waterM3 || r["Nước(m3)"] || 0)
-      }));
-      state.fees = {
-        electricPerKwh: Number(settings[0]?.electricPerKwh || settings[0]?.["Điện(VND/kWh)"] || DEFAULT_FEES.electricPerKwh),
-        waterPerM3: Number(settings[0]?.waterPerM3 || settings[0]?.["Nước(VND/m3)"] || DEFAULT_FEES.waterPerM3),
-        roomPerMonth: Number(settings[0]?.roomPerMonth || settings[0]?.["Phòng(VND/tháng)"] || DEFAULT_FEES.roomPerMonth)
-      };
-      return;
-    } catch (e) {
-      alert("Không tải được từ Google Sheets, dùng dữ liệu Local.");
-    }
-  }
-  // Fallback Local: load samples + autogen
-  const [baseTenants, baseRooms, baseFees] = await Promise.all([
-    fetch("data/sample-tenants.json").then(r => r.json()),
-    fetch("data/sample-rooms.json").then(r => r.json()),
-    fetch("data/sample-bill-settings.json").then(r => r.json())
-  ]);
-  const generated = generateLocalData(baseTenants, baseRooms);
-  state.tenants = generated.tenants;
-  state.rooms = generated.rooms;
-  state.fees = { ...DEFAULT_FEES, ...baseFees };
-}
-
-// ---- Renderers ----
-function renderNav() {
-  $$(".nav-item").forEach(btn => {
-    btn.addEventListener("click", () => {
-      $$(".nav-item").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      const v = btn.dataset.view;
-      $$(".view").forEach(s => s.style.display = "none");
-      $("#view-" + v).style.display = "block";
-    });
-  });
-}
-
-function renderDashboard() {
-  $("#statRooms").textContent = String(state.rooms.length);
-  const occupied = state.rooms.filter(r => r.status === "occupied").length;
-  $("#statOccupied").textContent = String(occupied);
-  $("#statTenants").textContent = String(state.tenants.length);
-
-  const estRevenue = occupied * state.fees.roomPerMonth
-    + state.rooms.reduce((sum, r) => sum + (r.electricKwh * state.fees.electricPerKwh + r.waterM3 * state.fees.waterPerM3), 0);
-  $("#statRevenue").textContent = currency(estRevenue);
-
-  $("#feeElectric").textContent = String(state.fees.electricPerKwh);
-  $("#feeWater").textContent = String(state.fees.waterPerM3);
-  $("#feeRoom").textContent = String(state.fees.roomPerMonth);
-}
-
-function renderTenants() {
-  const body = $("#tenantsTableBody");
-  body.innerHTML = "";
-  const q = $("#globalSearch").value.trim().toLowerCase();
-  state.tenants
-    .filter(t => !q || [t.name, t.phone, t.email, t.room, t.moveIn].some(x => String(x).toLowerCase().includes(q)))
-    .forEach(t => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${t.name}</td>
-        <td>${t.phone}</td>
-        <td>${t.email}</td>
-        <td>${t.room}</td>
-        <td>${t.moveIn}</td>
-        <td>
-          <button class="btn" data-action="edit">Sửa</button>
-          <button class="btn" data-action="remove">Xóa</button>
-        </td>
-      `;
-      tr.querySelector('[data-action="remove"]').addEventListener("click", () => {
-        state.tenants = state.tenants.filter(x => x !== t);
-        renderTenants();
-        renderDashboard();
+  state.tenants.slice(0, 60).forEach(t => {
+    months.forEach(month => {
+      const elec = Math.floor(Math.random()*50)+50;
+      const water = Math.floor(Math.random()*10)+5;
+      const room = state.rooms.find(r => r.id === t.roomId);
+      const total = room.price + elec*state.settings.elecRate + water*state.settings.waterRate;
+      state.payments.push({
+        id: state.seq.payment++,
+        tenantId: t.id,
+        month,
+        roomPrice: room.price,
+        electricity: elec,
+        water: water,
+        elecRate: state.settings.elecRate,
+        waterRate: state.settings.waterRate,
+        total,
+        paid: Math.random() < 0.6
       });
-      body.appendChild(tr);
     });
-
-  $("#addTenantBtn").onclick = () => {
-    const name = prompt("Họ tên:");
-    if (!name) return;
-    const phone = prompt("Điện thoại:");
-    const email = prompt("Email:");
-    const room = prompt("Phòng (vd: 101):");
-    const moveIn = prompt("Ngày vào (YYYY-MM-DD):");
-    state.tenants.push({ name, phone, email, room, moveIn });
-    renderTenants();
-    renderRooms();
-    renderDashboard();
-  };
+  });
 }
+
+// ---------- Helpers ----------
+function fmt(n) { return (n||0).toLocaleString('vi-VN'); }
+function getRoomName(id) { const r = state.rooms.find(r => r.id === id); return r ? r.name : '-'; }
+function getTenantName(id) { const t = state.tenants.find(t => t.id === id); return t ? t.name : '-'; }
+function monthStr(dateStr) { return dateStr?.slice(0,7) || ''; }
+
+// ---------- Tabs ----------
+const tabs = document.getElementById('tabs').querySelectorAll('button');
+tabs.forEach(btn => btn.addEventListener('click', () => {
+  tabs.forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('section.panel').forEach(s => s.classList.add('hidden'));
+  const target = document.getElementById(btn.dataset.tab);
+  target.classList.remove('hidden');
+  target.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 180, easing: 'ease-out' });
+}));
+
+// ---------- Dashboard ----------
+function renderDashboard() {
+  document.getElementById('statRooms').textContent = state.rooms.length;
+  const occupied = state.rooms.filter(r => r.status === 'occupied').length;
+  document.getElementById('statOccupied').textContent = occupied;
+  document.getElementById('statTenants').textContent = state.tenants.length;
+  const unpaid = state.payments.filter(p => !p.paid).length;
+  document.getElementById('statUnpaid').textContent = unpaid;
+}
+
+// Export/Import
+document.getElementById('exportDataBtn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'boarding_house_data.json'; a.click();
+  URL.revokeObjectURL(url);
+  toast('Đã xuất dữ liệu', 'success');
+});
+document.getElementById('importDataInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      Object.assign(state, data);
+      save();
+      toast('Nhập dữ liệu thành công', 'success');
+    } catch (err) {
+      toast('File không hợp lệ', 'error');
+    }
+  };
+  reader.readAsText(file);
+});
+
+// ---------- Rooms ----------
+const roomName = document.getElementById('roomName');
+const roomPrice = document.getElementById('roomPrice');
+const roomsTableBody = document.querySelector('#roomsTable tbody');
+const roomStatusFilter = document.getElementById('roomStatusFilter');
+const roomSearch = document.getElementById('roomSearch');
+const defaultRoomPriceQuick = document.getElementById('defaultRoomPriceQuick');
+
+document.getElementById('addRoomBtn').addEventListener('click', () => {
+  const name = roomName.value.trim();
+  const price = parseInt(roomPrice.value || state.settings.roomDefaultPrice, 10);
+  if (!name) { toast('Vui lòng nhập tên phòng', 'warn'); return; }
+  state.rooms.push({ id: state.seq.room++, name, price, status: 'vacant' });
+  roomName.value = ''; roomPrice.value = '';
+  save();
+});
+document.getElementById('resetRoomFormBtn').addEventListener('click', () => {
+  roomName.value = ''; roomPrice.value = '';
+});
+document.getElementById('applyDefaultPriceBtn').addEventListener('click', () => {
+  const price = parseInt(defaultRoomPriceQuick.value || state.settings.roomDefaultPrice, 10);
+  state.rooms.filter(r => r.status === 'vacant').forEach(r => r.price = price);
+  save();
+});
 
 function renderRooms() {
-  const body = $("#roomsTableBody");
-  body.innerHTML = "";
-  const q = $("#globalSearch").value.trim().toLowerCase();
-  state.rooms
-    .filter(r => !q || [r.room, r.status, r.electricKwh, r.waterM3].some(x => String(x).toLowerCase().includes(q)))
-    .forEach(r => {
-      const tenantsInRoom = state.tenants.filter(t => t.room === r.room).map(t => t.name).join(", ");
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${r.room}</td>
-        <td>${r.status === "occupied" ? "Đang ở" : "Trống"}</td>
-        <td>${tenantsInRoom || "-"}</td>
-        <td>${r.electricKwh}</td>
-        <td>${r.waterM3}</td>
-        <td>
-          <button class="btn" data-action="toggle">${r.status === "occupied" ? "Chuyển trống" : "Cho thuê"}</button>
-          <button class="btn" data-action="meter">Cập nhật số điện/nước</button>
-        </td>
-      `;
-      tr.querySelector('[data-action="toggle"]').addEventListener("click", () => {
-        r.status = r.status === "occupied" ? "vacant" : "occupied";
-        if (r.status === "vacant") {
-          // remove tenants from this room
-          state.tenants = state.tenants.filter(t => t.room !== r.room);
-          r.electricKwh = 0; r.waterM3 = 0;
-        }
-        renderRooms(); renderTenants(); renderDashboard();
-      });
-      tr.querySelector('[data-action="meter"]').addEventListener("click", () => {
-        const e = Number(prompt("Số điện (kWh):", r.electricKwh));
-        const w = Number(prompt("Số nước (m³):", r.waterM3));
-        if (!Number.isNaN(e)) r.electricKwh = e;
-        if (!Number.isNaN(w)) r.waterM3 = w;
-        renderRooms(); renderDashboard();
-      });
-      body.appendChild(tr);
-    });
-
-  $("#addRoomBtn").onclick = () => {
-    const room = prompt("Số phòng:");
-    if (!room) return;
-    const status = prompt("Trạng thái (occupied/vacant):", "vacant");
-    const electricKwh = Number(prompt("Điện kWh:", "0")) || 0;
-    const waterM3 = Number(prompt("Nước m³:", "0")) || 0;
-    state.rooms.push({ room: String(room), status, electricKwh, waterM3 });
-    renderRooms(); renderDashboard();
-  };
-}
-
-function renderBilling() {
-  const body = $("#billingTableBody");
-  body.innerHTML = "";
-  const occupiedRooms = state.rooms.filter(r => r.status === "occupied");
-  occupiedRooms.forEach(r => {
-    const roomFee = state.fees.roomPerMonth;
-    const elecFee = r.electricKwh * state.fees.electricPerKwh;
-    const waterFee = r.waterM3 * state.fees.waterPerM3;
-    const total = roomFee + elecFee + waterFee;
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${r.room}</td>
-      <td>${currency(roomFee)}</td>
-      <td>${currency(elecFee)}</td>
-      <td>${currency(waterFee)}</td>
-      <td>${currency(total)}</td>
-      <td>${BILLING_CONTEXT.monthLabel}</td>
-    `;
-    body.appendChild(tr);
+  defaultRoomPriceQuick.value = state.settings.roomDefaultPrice;
+  const status = roomStatusFilter.value;
+  const q = roomSearch.value.trim().toLowerCase();
+  const tenantsByRoom = {};
+  state.tenants.forEach(t => {
+    tenantsByRoom[t.roomId] = tenantsByRoom[t.roomId] || [];
+    tenantsByRoom[t.roomId].push(t);
   });
-
-  $("#generateBillsBtn").onclick = () => {
-    alert(`Đã tạo hóa đơn cho ${occupiedRooms.length} phòng. Bạn có thể xuất CSV bằng cách copy bảng.`);
-  };
-}
-
-function renderSettings() {
-  $("#inputElectricFee").value = state.fees.electricPerKwh;
-  $("#inputWaterFee").value = state.fees.waterPerM3;
-  $("#inputRoomFee").value = state.fees.roomPerMonth;
-
-  $("#saveFeesBtn").onclick = () => {
-    const e = Number($("#inputElectricFee").value);
-    const w = Number($("#inputWaterFee").value);
-    const r = Number($("#inputRoomFee").value);
-    if ([e, w, r].some(v => Number.isNaN(v) || v < 0)) {
-      alert("Giá trị không hợp lệ");
-      return;
-    }
-    state.fees = { electricPerKwh: e, waterPerM3: w, roomPerMonth: r };
-    renderDashboard(); renderBilling();
-    alert("Đã lưu biểu phí.");
-  };
-
-  $("#testSheetsBtn").onclick = async () => {
-    if (!SHEET_CSV_URLS.tenants || !SHEET_CSV_URLS.rooms || !SHEET_CSV_URLS.settings) {
-      alert("Chưa cấu hình URL CSV cho Google Sheets.");
-      return;
-    }
-    try {
-      const tenants = await fetchCSV(SHEET_CSV_URLS.tenants);
-      alert(`Kết nối OK. Đọc được ${tenants.length} dòng từ sheet Tenants.`);
-    } catch {
-      alert("Không đọc được CSV từ Sheets.");
-    }
-  };
-}
-
-// ---- Global search ----
-function initGlobalSearch() {
-  $("#globalSearch").addEventListener("input", () => {
-    const currentView = document.querySelector(".nav-item.active").dataset.view;
-    if (currentView === "tenants") renderTenants();
-    else if (currentView === "rooms") renderRooms();
-    else if (currentView === "billing") renderBilling();
-  });
-}
-
-// ---- Data mode controls ----
-function initDataControls() {
-  $("#dataMode").value = state.mode;
-  $("#dataMode").addEventListener("change", (e) => {
-    state.mode = e.target.value;
-  });
-  $("#reloadData").addEventListener("click", async () => {
-    await loadData(state.mode);
-    renderAll();
-  });
-}
-
-// ---- Init app ----
-async function initApp() {
-  renderNav();
-  initGlobalSearch();
-  initDataControls();
-  await loadData(state.mode);
-  renderAll();
-}
-
-function renderAll() {
-  renderDashboard();
-  renderTenants();
-  renderRooms();
-  renderBilling();
-  renderSettings();
-}
-
-// Boot
-document.addEventListener("DOMContentLoaded", initAuth);
+  const rows = state.rooms
+    .filter(r => !status || r.status === status)
+   
