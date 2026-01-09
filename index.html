@@ -3,164 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Quản Lý Nhà Trọ Pro</title>
+    <title>Hệ Thống Quản Lý Nhà Trọ Pro v2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .modal { transition: opacity 0.25s ease; }
+        body.modal-active { overflow-x: hidden; overflow-y: visible !important; }
+    </style>
 </head>
 <body class="bg-gray-100 font-sans">
-    <div class="flex h-screen">
-        <aside class="w-64 bg-indigo-900 text-white flex-shrink-0 hidden md:block">
-            <div class="p-6 text-2xl font-bold border-b border-indigo-800">QL NHÀ TRỌ</div>
+
+    <div id="login-screen" class="fixed inset-0 bg-indigo-900 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-lg shadow-2xl w-96">
+            <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Đăng Nhập Quản Trị</h2>
+            <input type="text" id="username" placeholder="Tài khoản" class="w-full p-3 mb-4 border rounded focus:outline-indigo-500">
+            <input type="password" id="password" placeholder="Mật khẩu" class="w-full p-3 mb-6 border rounded focus:outline-indigo-500">
+            <button onclick="login()" class="w-full bg-indigo-600 text-white p-3 rounded font-bold hover:bg-indigo-700">ĐĂNG NHẬP</button>
+            <p class="mt-4 text-xs text-center text-gray-400">Gợi ý: admin / admin</p>
+        </div>
+    </div>
+
+    <div id="main-app" class="hidden flex h-screen">
+        <aside class="w-64 bg-slate-900 text-white flex-shrink-0">
+            <div class="p-6 text-xl font-bold border-b border-slate-700 flex items-center">
+                <i class="fas fa-home-user mr-2 text-indigo-400"></i> PMS LITE
+            </div>
             <nav class="mt-6">
-                <a href="#" onclick="showSection('dashboard')" class="block py-3 px-6 hover:bg-indigo-800 transition"><i class="fas fa-chart-line mr-2"></i> Dashboard</a>
-                <a href="#" onclick="showSection('rooms')" class="block py-3 px-6 hover:bg-indigo-800 transition"><i class="fas fa-door-open mr-2"></i> Quản lý phòng</a>
-                <a href="#" onclick="showSection('tenants')" class="block py-3 px-6 hover:bg-indigo-800 transition"><i class="fas fa-users mr-2"></i> Khách thuê</a>
-                <a href="#" onclick="showSection('billing')" class="block py-3 px-6 hover:bg-indigo-800 transition"><i class="fas fa-file-invoice-dollar mr-2"></i> Hóa đơn</a>
+                <a href="#" onclick="showSection('dashboard')" class="block py-3 px-6 hover:bg-indigo-600 active-nav"><i class="fas fa-chart-pie mr-2"></i> Tổng quan</a>
+                <a href="#" onclick="showSection('rooms')" class="block py-3 px-6 hover:bg-indigo-600"><i class="fas fa-door-closed mr-2"></i> Phòng trọ</a>
+                <a href="#" onclick="showSection('tenants')" class="block py-3 px-6 hover:bg-indigo-600"><i class="fas fa-user-friends mr-2"></i> Khách thuê</a>
+                <a href="#" onclick="showSection('contracts')" class="block py-3 px-6 hover:bg-indigo-600"><i class="fas fa-file-contract mr-2"></i> Hợp đồng</a>
+                <a href="#" onclick="exportReport()" class="block py-3 px-6 hover:bg-green-600 mt-10 text-green-400"><i class="fas fa-file-export mr-2"></i> Xuất Báo Cáo</a>
+                <a href="#" onclick="logout()" class="block py-3 px-6 hover:bg-red-600 text-red-400"><i class="fas fa-sign-out-alt mr-2"></i> Đăng xuất</a>
             </nav>
         </aside>
 
-        <main class="flex-1 overflow-y-auto p-8">
-            <header class="flex justify-between items-center mb-8">
-                <h2 id="section-title" class="text-3xl font-semibold text-gray-800">Tổng quan</h2>
-                <div class="flex items-center space-x-4">
-                    <span class="text-gray-600">Admin: <strong>Gemini User</strong></span>
-                    <div class="w-10 h-10 bg-indigo-500 rounded-full flex items-center justify-center text-white font-bold">A</div>
+        <main class="flex-1 overflow-y-auto p-8 bg-gray-50">
+            <div id="dashboard" class="content-section">
+                <h2 class="text-2xl font-bold mb-6">Dashboard</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded shadow border-b-4 border-indigo-500">
+                        <div class="text-gray-500 text-sm uppercase">Tổng Thu Tháng</div>
+                        <div class="text-3xl font-bold text-indigo-700">62.500.000đ</div>
+                    </div>
+                    <div class="bg-white p-6 rounded shadow border-b-4 border-green-500">
+                        <div class="text-gray-500 text-sm uppercase">Tỉ lệ lấp đầy</div>
+                        <div class="text-3xl font-bold text-green-600">95%</div>
+                    </div>
+                    <div class="bg-white p-6 rounded shadow border-b-4 border-orange-500">
+                        <div class="text-gray-500 text-sm uppercase">Số khách hiện tại</div>
+                        <div id="stat-tenant-count" class="text-3xl font-bold text-orange-600">100</div>
+                    </div>
                 </div>
-            </header>
+                <div class="bg-white p-6 rounded shadow">
+                    <canvas id="mainChart" height="120"></canvas>
+                </div>
+            </div>
 
-            <section id="dashboard" class="content-section">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
-                        <p class="text-sm text-gray-500 uppercase font-bold">Tổng số phòng</p>
-                        <p class="text-2xl font-bold">40</p>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
-                        <p class="text-sm text-gray-500 uppercase font-bold">Đã cho thuê</p>
-                        <p class="text-2xl font-bold">38</p>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-yellow-500">
-                        <p class="text-sm text-gray-500 uppercase font-bold">Phòng trống</p>
-                        <p class="text-2xl font-bold">2</p>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-red-500">
-                        <p class="text-sm text-gray-500 uppercase font-bold">Doanh thu dự kiến</p>
-                        <p class="text-2xl font-bold">60,000,000đ</p>
-                    </div>
+            <div id="tenants" class="content-section hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Danh sách khách thuê</h2>
+                    <button onclick="openTenantModal()" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
+                        <i class="fas fa-plus mr-2"></i>Thêm khách mới
+                    </button>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm">
-                    <h3 class="text-lg font-bold mb-4">Thống kê doanh thu 6 tháng</h3>
-                    <canvas id="revenueChart" height="100"></canvas>
-                </div>
-            </section>
-
-            <section id="rooms" class="content-section hidden">
-                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                    <table class="w-full text-left border-collapse">
-                        <thead class="bg-gray-50 border-b">
-                            <tr>
-                                <th class="p-4 font-semibold text-gray-600">Số Phòng</th>
-                                <th class="p-4 font-semibold text-gray-600">Loại</th>
-                                <th class="p-4 font-semibold text-gray-600">Giá Thuê</th>
-                                <th class="p-4 font-semibold text-gray-600">Trạng Thái</th>
-                            </tr>
-                        </thead>
-                        <tbody id="room-list"></tbody>
-                    </table>
-                </div>
-            </section>
-
-            <section id="tenants" class="content-section hidden">
-                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                <div class="bg-white rounded shadow overflow-x-auto">
                     <table class="w-full text-left">
-                        <thead class="bg-gray-50 border-b">
+                        <thead class="bg-gray-100 border-b">
                             <tr>
-                                <th class="p-4 font-semibold text-gray-600">Họ Tên</th>
-                                <th class="p-4 font-semibold text-gray-600">Phòng</th>
-                                <th class="p-4 font-semibold text-gray-600">SĐT</th>
-                                <th class="p-4 font-semibold text-gray-600">Ngày Vào</th>
+                                <th class="p-4">Họ Tên</th>
+                                <th class="p-4">Phòng</th>
+                                <th class="p-4">Số điện thoại</th>
+                                <th class="p-4">Thao tác</th>
                             </tr>
                         </thead>
-                        <tbody id="tenant-list"></tbody>
+                        <tbody id="tenant-table-body"></tbody>
                     </table>
                 </div>
-            </section>
+            </div>
         </main>
     </div>
 
+    <div id="tenant-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-lg w-1/3">
+            <h3 id="modal-title" class="text-xl font-bold mb-4">Thêm khách thuê</h3>
+            <div class="space-y-4">
+                <input type="hidden" id="edit-index">
+                <div><label class="block text-sm font-medium">Họ tên</label><input id="m-name" type="text" class="w-full border p-2 rounded"></div>
+                <div><label class="block text-sm font-medium">Số điện thoại</label><input id="m-phone" type="text" class="w-full border p-2 rounded"></div>
+                <div><label class="block text-sm font-medium">Số phòng (1-40)</label><input id="m-room" type="number" class="w-full border p-2 rounded"></div>
+                <div class="flex justify-end space-x-2">
+                    <button onclick="closeModal()" class="px-4 py-2 bg-gray-300 rounded">Hủy</button>
+                    <button onclick="saveTenant()" class="px-4 py-2 bg-indigo-600 text-white rounded">Lưu lại</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // DỮ LIỆU MẪU
-        const ROOM_PRICE = 1500000;
-        const ELECTRIC_PRICE = 4000;
-        const WATER_PRICE = 20000;
-
-        const rooms = Array.from({ length: 40 }, (_, i) => ({
-            id: i + 1,
-            name: `Phòng ${101 + i}`,
-            price: ROOM_PRICE,
-            status: i < 38 ? 'Đã thuê' : 'Trống'
-        }));
-
-        const tenants = Array.from({ length: 100 }, (_, i) => ({
-            id: i + 1,
-            name: `Khách hàng ${i + 1}`,
-            room: Math.floor(Math.random() * 40) + 1,
-            phone: `090${Math.floor(1000000 + Math.random() * 9000000)}`,
-            joinDate: '2023-01-10'
-        }));
-
-        // HIỂN THỊ DỮ LIỆU
-        function renderRooms() {
-            const list = document.getElementById('room-list');
-            list.innerHTML = rooms.map(r => `
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="p-4 font-medium">${r.name}</td>
-                    <td class="p-4 text-gray-600">Cơ bản</td>
-                    <td class="p-4 font-bold text-indigo-600">${r.price.toLocaleString()}đ</td>
-                    <td class="p-4"><span class="px-2 py-1 rounded-full text-xs ${r.status === 'Trống' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${r.status}</span></td>
-                </tr>
-            `).join('');
+        // CONFIG & DATA
+        let tenants = JSON.parse(localStorage.getItem('tenants')) || [];
+        
+        // Khởi tạo 100 khách mẫu nếu chưa có dữ liệu
+        if (tenants.length === 0) {
+            for(let i=1; i<=100; i++) {
+                tenants.push({ name: `Khách hàng ${i}`, phone: `090${1000000+i}`, room: Math.floor(Math.random() * 40) + 1 });
+            }
+            localStorage.setItem('tenants', JSON.stringify(tenants));
         }
 
-        function renderTenants() {
-            const list = document.getElementById('tenant-list');
-            list.innerHTML = tenants.slice(0, 20).map(t => `
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="p-4 font-medium">${t.name}</td>
-                    <td class="p-4">Phòng ${100 + t.room}</td>
-                    <td class="p-4 text-gray-600">${t.phone}</td>
-                    <td class="p-4 text-sm text-gray-500">${t.joinDate}</td>
-                </tr>
-            `).join('') + `<tr><td colspan="4" class="p-4 text-center text-gray-400 italic">Hiển thị 20/100 khách hàng mẫu...</td></tr>`;
+        // AUTH
+        function login() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            if(u === 'admin' && p === 'admin') {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                initApp();
+            } else { alert('Sai tài khoản hoặc mật khẩu!'); }
         }
 
+        function logout() { location.reload(); }
+
+        // NAVIGATION
         function showSection(id) {
             document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
-            const titles = { dashboard: 'Tổng quan', rooms: 'Quản lý phòng', tenants: 'Khách thuê', billing: 'Hóa đơn' };
-            document.getElementById('section-title').innerText = titles[id];
         }
 
-        // BIỂU ĐỒ
-        const ctx = document.getElementById('revenueChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12', 'Tháng 1'],
-                datasets: [{
-                    label: 'Doanh thu (VNĐ)',
-                    data: [55000000, 58000000, 57000000, 62000000, 60000000, 65000000],
-                    borderColor: '#4f46e5',
-                    tension: 0.3,
-                    fill: true,
-                    backgroundColor: 'rgba(79, 70, 229, 0.1)'
-                }]
-            }
-        });
+        // CRUD TENANTS
+        function renderTenants() {
+            const body = document.getElementById('tenant-table-body');
+            body.innerHTML = tenants.map((t, index) => `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="p-4">${t.name}</td>
+                    <td class="p-4 font-bold text-indigo-600">P.${t.room}</td>
+                    <td class="p-4">${t.phone}</td>
+                    <td class="p-4">
+                        <button onclick="editTenant(${index})" class="text-blue-600 mr-3"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteTenant(${index})" class="text-red-600"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+            document.getElementById('stat-tenant-count').innerText = tenants.length;
+        }
 
-        // Khởi tạo
-        renderRooms();
-        renderTenants();
+        function openTenantModal() {
+            document.getElementById('edit-index').value = "-1";
+            document.getElementById('m-name').value = "";
+            document.getElementById('m-phone').value = "";
+            document.getElementById('m-room').value = "";
+            document.getElementById('tenant-modal').classList.remove('hidden');
+        }
+
+        function closeModal() { document.getElementById('tenant-modal').classList.add('hidden'); }
+
+        function saveTenant() {
+            const index = document.getElementById('edit-index').value;
+            const newT = {
+                name: document.getElementById('m-name').value,
+                phone: document.getElementById('m-phone').value,
+                room: document.getElementById('m-room').value
+            };
+
+            if(index === "-1") tenants.unshift(newT);
+            else tenants[index] = newT;
+
+            localStorage.setItem('tenants', JSON.stringify(tenants));
+            renderTenants();
+            closeModal();
+        }
+
+        function deleteTenant(index) {
+            if(confirm('Xóa khách này?')) {
+                tenants.splice(index, 1);
+                localStorage.setItem('tenants', JSON.stringify(tenants));
+                renderTenants();
+            }
+        }
+
+        function editTenant(index) {
+            const t = tenants[index];
+            document.getElementById('edit-index').value = index;
+            document.getElementById('m-name').value = t.name;
+            document.getElementById('m-phone').value = t.phone;
+            document.getElementById('m-room').value = t.room;
+            document.getElementById('tenant-modal').classList.remove('hidden');
+        }
+
+        function exportReport() {
+            let csv = "Ho ten,Phong,SDT\n";
+            tenants.forEach(t => { csv += `${t.name},${t.room},${t.phone}\n`; });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "Bao-cao-khach-tro.csv";
+            link.click();
+        }
+
+        function initApp() {
+            renderTenants();
+            new Chart(document.getElementById('mainChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['T8', 'T9', 'T10', 'T11', 'T12', 'T1'],
+                    datasets: [{ label: 'Doanh thu triệu đồng', data: [55, 59, 60, 62, 58, 65], backgroundColor: '#4f46e5' }]
+                }
+            });
+        }
     </script>
 </body>
 </html>
