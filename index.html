@@ -4,183 +4,841 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Quản lý nhà trọ</title>
-  <link rel="stylesheet" href="assets/styles.css" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --muted: #6b7280;
+      --text: #e5e7eb;
+      --accent: #22c55e;
+      --danger: #ef4444;
+      --warn: #f59e0b;
+      --border: #1f2937;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: linear-gradient(180deg, #0b1220, #0f172a);
+      color: var(--text);
+    }
+    header {
+      padding: 16px 24px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(17,24,39,0.6); backdrop-filter: blur(6px);
+      position: sticky; top: 0; z-index: 10;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand .logo {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: radial-gradient(circle at 30% 30%, #22c55e, #16a34a 60%, #064e3b);
+      box-shadow: 0 0 24px rgba(34,197,94,0.35);
+    }
+    nav { display: flex; gap: 8px; flex-wrap: wrap; }
+    nav button {
+      padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px;
+      background: #0b1220; color: var(--text); cursor: pointer;
+      transition: all .2s ease; font-weight: 600;
+    }
+    nav button.active { background: #111827; border-color: #334155; }
+    nav button:hover { transform: translateY(-1px); border-color: #475569; }
+    .container { padding: 24px; max-width: 1200px; margin: 0 auto; }
+    .panel {
+      background: rgba(17,24,39,0.6); border: 1px solid var(--border);
+      border-radius: 16px; padding: 16px; margin-bottom: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+    .panel h2 { margin: 0 0 12px; font-size: 18px; color: #cbd5e1; }
+    .grid { display: grid; gap: 12px; }
+    .grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+    @media (max-width: 900px) { .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 600px) { .grid.cols-2, .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr; } }
+    input, select, textarea {
+      width: 100%; padding: 10px 12px; border-radius: 10px;
+      border: 1px solid var(--border); background: #0b1220; color: var(--text);
+      outline: none; transition: border-color .2s ease;
+    }
+    input:focus, select:focus, textarea:focus { border-color: #475569; }
+    label { font-size: 12px; color: var(--muted); margin-bottom: 6px; display: block; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .row .spacer { flex: 1; }
+    .btn {
+      padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border);
+      background: #0b1220; color: var(--text); cursor: pointer; font-weight: 600;
+    }
+    .btn.primary { background: #16a34a; border-color: #22c55e; }
+    .btn.warn { background: #f59e0b; border-color: #fbbf24; }
+    .btn.danger { background: #ef4444; border-color: #f87171; }
+    .btn.ghost { background: transparent; }
+    .table {
+      width: 100%; border-collapse: collapse; overflow: auto; border-radius: 12px;
+    }
+    .table th, .table td {
+      border-bottom: 1px solid var(--border); padding: 10px; text-align: left;
+      font-size: 14px;
+    }
+    .table th { color: #93c5fd; background: rgba(2,6,23,0.4); position: sticky; top: 0; }
+    .badge {
+      display: inline-block; padding: 4px 8px; border-radius: 999px; font-size: 12px;
+      border: 1px solid var(--border);
+    }
+    .badge.green { background: rgba(34,197,94,0.15); color: #86efac; border-color: #14532d; }
+    .badge.gray { background: rgba(148,163,184,0.15); color: #cbd5e1; border-color: #334155; }
+    .badge.red { background: rgba(239,68,68,0.15); color: #fecaca; border-color: #7f1d1d; }
+    .stat {
+      padding: 12px; border: 1px solid var(--border); border-radius: 12px;
+      background: rgba(2,6,23,0.4);
+    }
+    .stat .label { color: var(--muted); font-size: 12px; }
+    .stat .value { font-size: 18px; font-weight: 700; }
+    footer { padding: 24px; color: var(--muted); text-align: center; }
+    .hidden { display: none !important; }
+    .card {
+      border: 1px solid var(--border); border-radius: 12px; padding: 12px;
+      background: rgba(17,24,39,0.5);
+    }
+  </style>
 </head>
 <body>
-  <div id="app">
-    <!-- Login -->
-    <div class="auth-container" id="authContainer">
-      <div class="auth-card">
-        <h1>Đăng nhập</h1>
-        <p class="sub">Giao diện quản lý nhà trọ</p>
-        <form id="loginForm">
-          <label>Tài khoản</label>
-          <input type="text" id="username" placeholder="admin" required />
-          <label>Mật khẩu</label>
-          <input type="password" id="password" placeholder="admin123" required />
-          <button type="submit" class="btn primary">Đăng nhập</button>
-        </form>
-        <p class="hint">Mặc định: admin / admin123 (cấu hình trong config.js)</p>
+  <header>
+    <div class="brand">
+      <div class="logo"></div>
+      <div>
+        <div style="font-weight:800;">Quản lý nhà trọ</div>
+        <div style="font-size:12px;color:#94a3b8;">HTML/CSS/JS • localStorage</div>
       </div>
     </div>
+    <nav id="tabs">
+      <button data-tab="dashboard" class="active">Tổng quan</button>
+      <button data-tab="rooms">Phòng</button>
+      <button data-tab="tenants">Khách thuê</button>
+      <button data-tab="payments">Thanh toán</button>
+      <button data-tab="settings">Cấu hình</button>
+    </nav>
+  </header>
 
-    <!-- Main -->
-    <div class="layout" id="mainLayout" style="display:none;">
-      <aside class="sidebar">
-        <div class="brand">Nhà Trọ Pro</div>
-        <nav>
-          <button class="nav-item active" data-view="dashboard">Dashboard</button>
-          <button class="nav-item" data-view="tenants">Người thuê</button>
-          <button class="nav-item" data-view="rooms">Phòng</button>
-          <button class="nav-item" data-view="billing">Hóa đơn</button>
-          <button class="nav-item" data-view="settings">Cài đặt</button>
-        </nav>
-        <div class="sidebar-bottom">
-          <button id="logoutBtn" class="btn">Đăng xuất</button>
+  <div class="container">
+    <!-- Dashboard -->
+    <section id="dashboard" class="panel">
+      <h2>Tổng quan</h2>
+      <div class="grid cols-4">
+        <div class="stat"><div class="label">Tổng phòng</div><div class="value" id="statRooms">0</div></div>
+        <div class="stat"><div class="label">Phòng đang thuê</div><div class="value" id="statOccupied">0</div></div>
+        <div class="stat"><div class="label">Tổng khách</div><div class="value" id="statTenants">0</div></div>
+        <div class="stat"><div class="label">Hóa đơn chưa thanh toán</div><div class="value" id="statUnpaid">0</div></div>
+      </div>
+      <div class="panel" style="margin-top:16px;">
+        <div class="row">
+          <div class="spacer"></div>
+          <button class="btn" id="exportDataBtn">Xuất dữ liệu</button>
+          <label class="btn ghost" style="border:1px dashed #334155;">
+            Nhập dữ liệu <input type="file" id="importDataInput" accept="application/json" style="display:none;">
+          </label>
         </div>
-      </aside>
+      </div>
+    </section>
 
-      <main class="content">
-        <!-- Top bar -->
-        <div class="topbar">
-          <div class="search">
-            <input type="text" id="globalSearch" placeholder="Tìm tên người thuê, số phòng, số điện..." />
+    <!-- Rooms -->
+    <section id="rooms" class="panel hidden">
+      <h2>Quản lý phòng</h2>
+      <div class="grid cols-3">
+        <div class="card">
+          <h3 style="margin:0 0 8px;">Thêm/Sửa phòng</h3>
+          <div class="grid cols-2">
+            <div>
+              <label>Tên phòng</label>
+              <input id="roomName" placeholder="VD: P101" />
+            </div>
+            <div>
+              <label>Giá phòng (VNĐ)</label>
+              <input id="roomPrice" type="number" min="0" />
+            </div>
           </div>
-          <div class="mode">
-            <select id="dataMode">
-              <option value="local">Local (mặc định)</option>
-              <option value="sheets">Google Sheets</option>
-            </select>
-            <button id="reloadData" class="btn">Tải dữ liệu</button>
+          <div class="row" style="margin-top:8px;">
+            <button class="btn primary" id="addRoomBtn">Lưu phòng</button>
+            <button class="btn" id="resetRoomFormBtn">Làm mới</button>
           </div>
         </div>
+        <div class="card">
+          <h3 style="margin:0 0 8px;">Bộ lọc</h3>
+          <div class="grid cols-2">
+            <div>
+              <label>Trạng thái</label>
+              <select id="roomStatusFilter">
+                <option value="">Tất cả</option>
+                <option value="vacant">Trống</option>
+                <option value="occupied">Đang thuê</option>
+              </select>
+            </div>
+            <div>
+              <label>Tìm theo tên</label>
+              <input id="roomSearch" placeholder="Nhập tên phòng..." />
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="margin:0 0 8px;">Cấu hình nhanh</h3>
+          <div class="grid cols-2">
+            <div>
+              <label>Giá phòng mặc định</label>
+              <input id="defaultRoomPriceQuick" type="number" min="0" />
+            </div>
+            <div class="row" style="margin-top:22px;">
+              <button class="btn warn" id="applyDefaultPriceBtn">Áp dụng cho phòng trống</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:12px;">
+        <table class="table" id="roomsTable">
+          <thead>
+            <tr>
+              <th>#</th><th>Tên phòng</th><th>Giá phòng</th><th>Trạng thái</th><th>Khách</th><th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
 
-        <!-- Dashboard -->
-        <section id="view-dashboard" class="view">
-          <h2>Tổng quan</h2>
-          <div class="cards">
-            <div class="card">
-              <div class="card-title">Tổng số phòng</div>
-              <div class="card-value" id="statRooms">0</div>
+    <!-- Tenants -->
+    <section id="tenants" class="panel hidden">
+      <h2>Quản lý khách thuê</h2>
+      <div class="grid cols-3">
+        <div class="card">
+          <h3 style="margin:0 0 8px;">Thêm/Sửa khách</h3>
+          <div class="grid cols-2">
+            <div>
+              <label>Họ tên</label>
+              <input id="tenantName" placeholder="VD: Nguyễn Văn A" />
             </div>
-            <div class="card">
-              <div class="card-title">Phòng đang ở</div>
-              <div class="card-value" id="statOccupied">0</div>
+            <div>
+              <label>Số điện thoại</label>
+              <input id="tenantPhone" placeholder="VD: 090..." />
             </div>
-            <div class="card">
-              <div class="card-title">Người thuê</div>
-              <div class="card-value" id="statTenants">0</div>
+            <div>
+              <label>Phòng</label>
+              <select id="tenantRoom"></select>
             </div>
-            <div class="card">
-              <div class="card-title">Doanh thu tháng (ước tính)</div>
-              <div class="card-value" id="statRevenue">0 VND</div>
+            <div>
+              <label>Ngày vào</label>
+              <input id="tenantMoveIn" type="date" />
+            </div>
+            <div>
+              <label>Ngày ra (nếu có)</label>
+              <input id="tenantMoveOut" type="date" />
             </div>
           </div>
-          <div class="panel">
-            <h3>Biểu phí</h3>
-            <div class="fees">
-              <div>Điện: <span id="feeElectric">—</span> VND/kWh</div>
-              <div>Nước: <span id="feeWater">—</span> VND/m³</div>
-              <div>Phòng: <span id="feeRoom">—</span> VND/tháng</div>
+          <div class="row" style="margin-top:8px;">
+            <button class="btn primary" id="addTenantBtn">Lưu khách</button>
+            <button class="btn" id="resetTenantFormBtn">Làm mới</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="margin:0 0 8px;">Bộ lọc</h3>
+          <div class="grid cols-2">
+            <div>
+              <label>Phòng</label>
+              <select id="tenantRoomFilter"></select>
+            </div>
+            <div>
+              <label>Tìm theo tên/điện thoại</label>
+              <input id="tenantSearch" placeholder="Nhập từ khóa..." />
             </div>
           </div>
-        </section>
+        </div>
+        <div class="card">
+          <h3 style="margin:0 0 8px;">Tác vụ nhanh</h3>
+          <div class="row">
+            <button class="btn warn" id="vacateRoomBtn">Trả phòng (khách chọn)</button>
+          </div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:12px;">
+        <table class="table" id="tenantsTable">
+          <thead>
+            <tr>
+              <th>#</th><th>Họ tên</th><th>Điện thoại</th><th>Phòng</th><th>Ngày vào</th><th>Ngày ra</th><th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
 
-        <!-- Tenants -->
-        <section id="view-tenants" class="view" style="display:none;">
-          <div class="header-row">
-            <h2>Người thuê</h2>
-            <button id="addTenantBtn" class="btn primary">Thêm người thuê</button>
-          </div>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Họ tên</th>
-                  <th>Điện thoại</th>
-                  <th>Email</th>
-                  <th>Phòng</th>
-                  <th>Ngày vào</th>
-                  <th>Hành động</th>
-                </tr>
-              </thead>
-              <tbody id="tenantsTableBody"></tbody>
-            </table>
-          </div>
-        </section>
-
-        <!-- Rooms -->
-        <section id="view-rooms" class="view" style="display:none;">
-          <div class="header-row">
-            <h2>Phòng</h2>
-            <button id="addRoomBtn" class="btn primary">Thêm phòng</button>
-          </div>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Số phòng</th>
-                  <th>Trạng thái</th>
-                  <th>Người thuê</th>
-                  <th>Điện (kWh)</th>
-                  <th>Nước (m³)</th>
-                  <th>Hành động</th>
-                </tr>
-              </thead>
-              <tbody id="roomsTableBody"></tbody>
-            </table>
-          </div>
-        </section>
-
-        <!-- Billing -->
-        <section id="view-billing" class="view" style="display:none;">
-          <div class="header-row">
-            <h2>Hóa đơn tháng</h2>
-            <button id="generateBillsBtn" class="btn primary">Tạo hóa đơn</button>
-          </div>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Phòng</th>
-                  <th>Tiền phòng</th>
-                  <th>Điện</th>
-                  <th>Nước</th>
-                  <th>Tổng</th>
-                  <th>Ghi chú</th>
-                </tr>
-              </thead>
-              <tbody id="billingTableBody"></tbody>
-            </table>
-          </div>
-        </section>
-
-        <!-- Settings -->
-        <section id="view-settings" class="view" style="display:none;">
-          <h2>Cài đặt</h2>
-          <div class="form-grid">
-            <div class="form-card">
-              <h3>Biểu phí</h3>
-              <label>Điện (VND/kWh)</label>
-              <input type="number" id="inputElectricFee" />
-              <label>Nước (VND/m³)</label>
-              <input type="number" id="inputWaterFee" />
-              <label>Tiền phòng (VND/tháng)</label>
-              <input type="number" id="inputRoomFee" />
-              <button id="saveFeesBtn" class="btn primary">Lưu</button>
+    <!-- Payments -->
+    <section id="payments" class="panel hidden">
+      <h2>Quản lý thanh toán</h2>
+      <div class="grid cols-3">
+        <div class="card">
+          <h3 style="margin:0 0 8px;">Tạo hóa đơn</h3>
+          <div class="grid cols-2">
+            <div>
+              <label>Khách thuê</label>
+              <select id="paymentTenant"></select>
             </div>
-            <div class="form-card">
-              <h3>Google Sheets</h3>
-              <p>Dán URL CSV (Publish to web) trong config/config.js.</p>
-              <button id="testSheetsBtn" class="btn">Kiểm tra kết nối</button>
+            <div>
+              <label>Tháng</label>
+              <input id="paymentMonth" type="month" />
+            </div>
+            <div>
+              <label>Tiền điện (kWh)</label>
+              <input id="paymentElec" type="number" min="0" />
+            </div>
+            <div>
+              <label>Tiền nước (m³)</label>
+              <input id="paymentWater" type="number" min="0" />
             </div>
           </div>
-        </section>
-      </main>
-    </div>
+          <div class="row" style="margin-top:8px;">
+            <button class="btn primary" id="addPaymentBtn">Tạo hóa đơn</button>
+            <button class="btn" id="resetPaymentFormBtn">Làm mới</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="margin:0 0 8px;">Bộ lọc</h3>
+          <div class="grid cols-2">
+            <div>
+              <label>Tháng</label>
+              <input id="paymentMonthFilter" type="month" />
+            </div>
+            <div>
+              <label>Trạng thái</label>
+              <select id="paymentStatusFilter">
+                <option value="">Tất cả</option>
+                <option value="paid">Đã thanh toán</option>
+                <option value="unpaid">Chưa thanh toán</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="margin:0 0 8px;">Cấu hình giá</h3>
+          <div class="grid cols-2">
+            <div>
+              <label>Giá điện (VNĐ/kWh)</label>
+              <input id="elecRateQuick" type="number" min="0" />
+            </div>
+            <div>
+              <label>Giá nước (VNĐ/m³)</label>
+              <input id="waterRateQuick" type="number" min="0" />
+            </div>
+          </div>
+          <div class="row" style="margin-top:8px;">
+            <button class="btn warn" id="applyRatesBtn">Cập nhật giá</button>
+          </div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:12px;">
+        <table class="table" id="paymentsTable">
+          <thead>
+            <tr>
+              <th>#</th><th>Khách</th><th>Tháng</th><th>Phòng</th>
+              <th>Phòng (VNĐ)</th><th>Điện</th><th>Nước</th><th>Tổng (VNĐ)</th><th>Trạng thái</th><th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Settings -->
+    <section id="settings" class="panel hidden">
+      <h2>Cấu hình & dữ liệu</h2>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3 style="margin:0 0 8px;">Giá mặc định</h3>
+          <div class="grid cols-2">
+            <div>
+              <label>Giá phòng mặc định (VNĐ)</label>
+              <input id="defaultRoomPrice" type="number" min="0" />
+            </div>
+            <div>
+              <label>Giá điện (VNĐ/kWh)</label>
+              <input id="elecRate" type="number" min="0" />
+            </div>
+            <div>
+              <label>Giá nước (VNĐ/m³)</label>
+              <input id="waterRate" type="number" min="0" />
+            </div>
+          </div>
+          <div class="row" style="margin-top:8px;">
+            <button class="btn primary" id="saveSettingsBtn">Lưu cấu hình</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="margin:0 0 8px;">Dữ liệu</h3>
+          <div class="row">
+            <button class="btn warn" id="seedDataBtn">Tạo dữ liệu mẫu</button>
+            <button class="btn danger" id="resetDataBtn">Reset dữ liệu</button>
+          </div>
+          <p style="color:#94a3b8; font-size:13px; margin-top:8px;">
+            Dữ liệu lưu trong trình duyệt (localStorage). Dùng Xuất/Nhập để sao lưu/phục hồi.
+          </p>
+        </div>
+      </div>
+    </section>
   </div>
 
-  <script src="config/config.js"></script>
-  <script src="assets/app.js"></script>
+  <footer>
+    © 2026 Quản lý nhà trọ • Xây dựng bằng HTML/CSS/JS • Lưu trữ localStorage
+  </footer>
+
+  <script>
+    // ---------- Storage & State ----------
+    const KEY = 'boarding_house_app_v1';
+    const state = {
+      rooms: [],
+      tenants: [],
+      payments: [],
+      settings: { roomDefaultPrice: 1500000, elecRate: 4000, waterRate: 20000 },
+      seq: { room: 1, tenant: 1, payment: 1 }
+    };
+
+    function load() {
+      const raw = localStorage.getItem(KEY);
+      if (raw) {
+        const data = JSON.parse(raw);
+        Object.assign(state, data);
+      } else {
+        // First run: seed default settings and sample data
+        seedSampleData();
+        save();
+      }
+    }
+    function save() {
+      localStorage.setItem(KEY, JSON.stringify(state));
+      renderAll();
+    }
+    function resetAll() {
+      localStorage.removeItem(KEY);
+      state.rooms = [];
+      state.tenants = [];
+      state.payments = [];
+      state.settings = { roomDefaultPrice: 1500000, elecRate: 4000, waterRate: 20000 };
+      state.seq = { room: 1, tenant: 1, payment: 1 };
+      seedSampleData();
+      save();
+    }
+
+    // ---------- Sample Data ----------
+    function seedSampleData() {
+      // 40 rooms
+      for (let i = 1; i <= 40; i++) {
+        state.rooms.push({
+          id: state.seq.room++,
+          name: 'P' + (100 + i),
+          price: state.settings.roomDefaultPrice,
+          status: 'vacant'
+        });
+      }
+      // 100 tenants randomly assigned to rooms (max 3 per room)
+      const roomCapacity = {};
+      for (let i = 1; i <= 100; i++) {
+        const name = 'Khách ' + i;
+        const phone = '09' + String(10000000 + i);
+        // pick a room with capacity < 3
+        let roomId = null;
+        for (let attempt = 0; attempt < 200; attempt++) {
+          const r = state.rooms[Math.floor(Math.random() * state.rooms.length)];
+          const count = roomCapacity[r.id] || 0;
+          if (count < 3) { roomId = r.id; roomCapacity[r.id] = count + 1; break; }
+        }
+        const today = new Date();
+        const moveIn = new Date(today.getFullYear(), today.getMonth() - Math.floor(Math.random()*6), 1);
+        const tenant = {
+          id: state.seq.tenant++,
+          name, phone, roomId,
+          moveIn: moveIn.toISOString().slice(0,10),
+          moveOut: ''
+        };
+        state.tenants.push(tenant);
+      }
+      // mark occupied rooms
+      const occupiedSet = new Set(state.tenants.map(t => t.roomId));
+      state.rooms.forEach(r => { if (occupiedSet.has(r.id)) r.status = 'occupied'; });
+
+      // create some payments for last 3 months
+      const today = new Date();
+      const months = [];
+      for (let m = 0; m < 3; m++) {
+        const d = new Date(today.getFullYear(), today.getMonth() - m, 1);
+        months.push(d.toISOString().slice(0,7));
+      }
+      state.tenants.slice(0, 60).forEach(t => {
+        months.forEach(month => {
+          const elec = Math.floor(Math.random()*50)+50; // 50-100 kWh
+          const water = Math.floor(Math.random()*10)+5;  // 5-15 m3
+          const room = state.rooms.find(r => r.id === t.roomId);
+          const total = room.price + elec*state.settings.elecRate + water*state.settings.waterRate;
+          state.payments.push({
+            id: state.seq.payment++,
+            tenantId: t.id,
+            month,
+            roomPrice: room.price,
+            electricity: elec,
+            water: water,
+            elecRate: state.settings.elecRate,
+            waterRate: state.settings.waterRate,
+            total,
+            paid: Math.random() < 0.6 // 60% paid
+          });
+        });
+      });
+    }
+
+    // ---------- Helpers ----------
+    function fmt(n) { return (n||0).toLocaleString('vi-VN'); }
+    function getRoomName(id) { const r = state.rooms.find(r => r.id === id); return r ? r.name : '-'; }
+    function getTenantName(id) { const t = state.tenants.find(t => t.id === id); return t ? t.name : '-'; }
+    function monthStr(dateStr) { return dateStr?.slice(0,7) || ''; }
+
+    // ---------- Tabs ----------
+    const tabs = document.getElementById('tabs').querySelectorAll('button');
+    tabs.forEach(btn => btn.addEventListener('click', () => {
+      tabs.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('section.panel').forEach(s => s.classList.add('hidden'));
+      document.getElementById(btn.dataset.tab).classList.remove('hidden');
+    }));
+
+    // ---------- Dashboard ----------
+    function renderDashboard() {
+      document.getElementById('statRooms').textContent = state.rooms.length;
+      const occupied = state.rooms.filter(r => r.status === 'occupied').length;
+      document.getElementById('statOccupied').textContent = occupied;
+      document.getElementById('statTenants').textContent = state.tenants.length;
+      const unpaid = state.payments.filter(p => !p.paid).length;
+      document.getElementById('statUnpaid').textContent = unpaid;
+    }
+
+    // Export/Import
+    document.getElementById('exportDataBtn').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'boarding_house_data.json'; a.click();
+      URL.revokeObjectURL(url);
+    });
+    document.getElementById('importDataInput').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          Object.assign(state, data);
+          save();
+          alert('Nhập dữ liệu thành công!');
+        } catch (err) {
+          alert('File không hợp lệ!');
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    // ---------- Rooms ----------
+    const roomName = document.getElementById('roomName');
+    const roomPrice = document.getElementById('roomPrice');
+    const roomsTableBody = document.querySelector('#roomsTable tbody');
+    const roomStatusFilter = document.getElementById('roomStatusFilter');
+    const roomSearch = document.getElementById('roomSearch');
+    const defaultRoomPriceQuick = document.getElementById('defaultRoomPriceQuick');
+
+    document.getElementById('addRoomBtn').addEventListener('click', () => {
+      const name = roomName.value.trim();
+      const price = parseInt(roomPrice.value || state.settings.roomDefaultPrice, 10);
+      if (!name) { alert('Vui lòng nhập tên phòng'); return; }
+      state.rooms.push({ id: state.seq.room++, name, price, status: 'vacant' });
+      roomName.value = ''; roomPrice.value = '';
+      save();
+    });
+    document.getElementById('resetRoomFormBtn').addEventListener('click', () => {
+      roomName.value = ''; roomPrice.value = '';
+    });
+    document.getElementById('applyDefaultPriceBtn').addEventListener('click', () => {
+      const price = parseInt(defaultRoomPriceQuick.value || state.settings.roomDefaultPrice, 10);
+      state.rooms.filter(r => r.status === 'vacant').forEach(r => r.price = price);
+      save();
+    });
+
+    function renderRooms() {
+      defaultRoomPriceQuick.value = state.settings.roomDefaultPrice;
+      const status = roomStatusFilter.value;
+      const q = roomSearch.value.trim().toLowerCase();
+      const tenantsByRoom = {};
+      state.tenants.forEach(t => {
+        tenantsByRoom[t.roomId] = tenantsByRoom[t.roomId] || [];
+        tenantsByRoom[t.roomId].push(t);
+      });
+      const rows = state.rooms
+        .filter(r => !status || r.status === status)
+        .filter(r => !q || r.name.toLowerCase().includes(q))
+        .map((r, idx) => {
+          const ts = tenantsByRoom[r.id] || [];
+          const tNames = ts.map(t => t.name).join(', ') || '-';
+          return `<tr>
+            <td>${idx+1}</td>
+            <td>${r.name}</td>
+            <td>${fmt(r.price)}</td>
+            <td>${r.status === 'occupied' ? '<span class="badge green">Đang thuê</span>' : '<span class="badge gray">Trống</span>'}</td>
+            <td>${tNames}</td>
+            <td>
+              <button class="btn" onclick="editRoom(${r.id})">Sửa</button>
+              <button class="btn danger" onclick="deleteRoom(${r.id})">Xóa</button>
+            </td>
+          </tr>`;
+        }).join('');
+      roomsTableBody.innerHTML = rows || '<tr><td colspan="6">Không có dữ liệu</td></tr>';
+    }
+    window.editRoom = function(id) {
+      const r = state.rooms.find(r => r.id === id);
+      if (!r) return;
+      const name = prompt('Tên phòng', r.name);
+      if (!name) return;
+      const price = parseInt(prompt('Giá phòng (VNĐ)', r.price) || r.price, 10);
+      r.name = name; r.price = price;
+      save();
+    };
+    window.deleteRoom = function(id) {
+      if (!confirm('Xóa phòng này?')) return;
+      // remove tenants in this room
+      state.tenants = state.tenants.filter(t => t.roomId !== id);
+      state.rooms = state.rooms.filter(r => r.id !== id);
+      save();
+    };
+
+    // ---------- Tenants ----------
+    const tenantName = document.getElementById('tenantName');
+    const tenantPhone = document.getElementById('tenantPhone');
+    const tenantRoom = document.getElementById('tenantRoom');
+    const tenantMoveIn = document.getElementById('tenantMoveIn');
+    const tenantMoveOut = document.getElementById('tenantMoveOut');
+    const tenantsTableBody = document.querySelector('#tenantsTable tbody');
+    const tenantRoomFilter = document.getElementById('tenantRoomFilter');
+    const tenantSearch = document.getElementById('tenantSearch');
+
+    function refreshRoomSelects() {
+      const opts = state.rooms.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+      tenantRoom.innerHTML = `<option value="">-- Chọn phòng --</option>` + opts;
+      tenantRoomFilter.innerHTML = `<option value="">Tất cả</option>` + opts;
+    }
+
+    document.getElementById('addTenantBtn').addEventListener('click', () => {
+      const name = tenantName.value.trim();
+      const phone = tenantPhone.value.trim();
+      const roomId = parseInt(tenantRoom.value || '0', 10);
+      const moveIn = tenantMoveIn.value || new Date().toISOString().slice(0,10);
+      const moveOut = tenantMoveOut.value || '';
+      if (!name || !phone || !roomId) { alert('Vui lòng nhập đầy đủ thông tin'); return; }
+      state.tenants.push({ id: state.seq.tenant++, name, phone, roomId, moveIn, moveOut });
+      const room = state.rooms.find(r => r.id === roomId);
+      if (room) room.status = 'occupied';
+      tenantName.value = ''; tenantPhone.value = ''; tenantRoom.value = ''; tenantMoveIn.value = ''; tenantMoveOut.value = '';
+      save();
+    });
+    document.getElementById('resetTenantFormBtn').addEventListener('click', () => {
+      tenantName.value = ''; tenantPhone.value = ''; tenantRoom.value = ''; tenantMoveIn.value = ''; tenantMoveOut.value = '';
+    });
+    document.getElementById('vacateRoomBtn').addEventListener('click', () => {
+      const selected = Array.from(document.querySelectorAll('#tenantsTable input[type="checkbox"]:checked')).map(cb => parseInt(cb.value, 10));
+      if (selected.length === 0) { alert('Chọn ít nhất một khách'); return; }
+      selected.forEach(id => {
+        const t = state.tenants.find(x => x.id === id);
+        if (t) t.moveOut = new Date().toISOString().slice(0,10);
+      });
+      // update room status
+      state.rooms.forEach(r => {
+        const still = state.tenants.some(t => t.roomId === r.id && !t.moveOut);
+        r.status = still ? 'occupied' : 'vacant';
+      });
+      save();
+    });
+
+    function renderTenants() {
+      refreshRoomSelects();
+      const roomId = parseInt(tenantRoomFilter.value || '0', 10);
+      const q = tenantSearch.value.trim().toLowerCase();
+      const rows = state.tenants
+        .filter(t => !roomId || t.roomId === roomId)
+        .filter(t => !q || t.name.toLowerCase().includes(q) || t.phone.includes(q))
+        .map((t, idx) => {
+          return `<tr>
+            <td><input type="checkbox" value="${t.id}"> ${idx+1}</td>
+            <td>${t.name}</td>
+            <td>${t.phone}</td>
+            <td>${getRoomName(t.roomId)}</td>
+            <td>${t.moveIn || '-'}</td>
+            <td>${t.moveOut || '-'}</td>
+            <td>
+              <button class="btn" onclick="editTenant(${t.id})">Sửa</button>
+              <button class="btn danger" onclick="deleteTenant(${t.id})">Xóa</button>
+            </td>
+          </tr>`;
+        }).join('');
+      tenantsTableBody.innerHTML = rows || '<tr><td colspan="7">Không có dữ liệu</td></tr>';
+    }
+    window.editTenant = function(id) {
+      const t = state.tenants.find(t => t.id === id);
+      if (!t) return;
+      const name = prompt('Họ tên', t.name); if (!name) return;
+      const phone = prompt('Số điện thoại', t.phone) || t.phone;
+      const roomNamePrompt = prompt('Phòng (tên, VD: P101)', getRoomName(t.roomId)) || getRoomName(t.roomId);
+      const room = state.rooms.find(r => r.name === roomNamePrompt) || state.rooms.find(r => r.id === t.roomId);
+      t.name = name; t.phone = phone; t.roomId = room.id;
+      save();
+    };
+    window.deleteTenant = function(id) {
+      if (!confirm('Xóa khách này?')) return;
+      const t = state.tenants.find(x => x.id === id);
+      state.tenants = state.tenants.filter(x => x.id !== id);
+      // update room status
+      const room = state.rooms.find(r => r.id === t.roomId);
+      if (room) {
+        const still = state.tenants.some(x => x.roomId === room.id && !x.moveOut);
+        room.status = still ? 'occupied' : 'vacant';
+      }
+      save();
+    };
+
+    // ---------- Payments ----------
+    const paymentTenant = document.getElementById('paymentTenant');
+    const paymentMonth = document.getElementById('paymentMonth');
+    const paymentElec = document.getElementById('paymentElec');
+    const paymentWater = document.getElementById('paymentWater');
+    const paymentsTableBody = document.querySelector('#paymentsTable tbody');
+    const paymentMonthFilter = document.getElementById('paymentMonthFilter');
+    const paymentStatusFilter = document.getElementById('paymentStatusFilter');
+    const elecRateQuick = document.getElementById('elecRateQuick');
+    const waterRateQuick = document.getElementById('waterRateQuick');
+
+    function refreshTenantSelect() {
+      const opts = state.tenants.map(t => `<option value="${t.id}">${t.name} (${getRoomName(t.roomId)})</option>`).join('');
+      paymentTenant.innerHTML = `<option value="">-- Chọn khách --</option>` + opts;
+    }
+
+    document.getElementById('addPaymentBtn').addEventListener('click', () => {
+      const tenantId = parseInt(paymentTenant.value || '0', 10);
+      const month = paymentMonth.value || monthStr(new Date().toISOString());
+      const elec = parseInt(paymentElec.value || '0', 10);
+      const water = parseInt(paymentWater.value || '0', 10);
+      if (!tenantId || !month) { alert('Vui lòng chọn khách và tháng'); return; }
+      const tenant = state.tenants.find(t => t.id === tenantId);
+      const room = state.rooms.find(r => r.id === tenant.roomId);
+      const total = room.price + elec*state.settings.elecRate + water*state.settings.waterRate;
+      state.payments.push({
+        id: state.seq.payment++,
+        tenantId, month,
+        roomPrice: room.price,
+        electricity: elec,
+        water: water,
+        elecRate: state.settings.elecRate,
+        waterRate: state.settings.waterRate,
+        total,
+        paid: false
+      });
+      paymentTenant.value = ''; paymentMonth.value = ''; paymentElec.value = ''; paymentWater.value = '';
+      save();
+    });
+    document.getElementById('resetPaymentFormBtn').addEventListener('click', () => {
+      paymentTenant.value = ''; paymentMonth.value = ''; paymentElec.value = ''; paymentWater.value = '';
+    });
+    document.getElementById('applyRatesBtn').addEventListener('click', () => {
+      const e = parseInt(elecRateQuick.value || state.settings.elecRate, 10);
+      const w = parseInt(waterRateQuick.value || state.settings.waterRate, 10);
+      state.settings.elecRate = e; state.settings.waterRate = w;
+      save();
+    });
+
+    function renderPayments() {
+      refreshTenantSelect();
+      elecRateQuick.value = state.settings.elecRate;
+      waterRateQuick.value = state.settings.waterRate;
+      const month = paymentMonthFilter.value;
+      const status = paymentStatusFilter.value;
+      const rows = state.payments
+        .filter(p => !month || p.month === month)
+        .filter(p => !status || (status === 'paid' ? p.paid : !p.paid))
+        .map((p, idx) => {
+          const tenant = state.tenants.find(t => t.id === p.tenantId);
+          const room = state.rooms.find(r => r.id === tenant.roomId);
+          return `<tr>
+            <td>${idx+1}</td>
+            <td>${tenant?.name || '-'}</td>
+            <td>${p.month}</td>
+            <td>${room?.name || '-'}</td>
+            <td>${fmt(p.roomPrice)}</td>
+            <td>${p.electricity} kWh × ${fmt(p.elecRate)}</td>
+            <td>${p.water} m³ × ${fmt(p.waterRate)}</td>
+            <td>${fmt(p.total)}</td>
+            <td>${p.paid ? '<span class="badge green">Đã TT</span>' : '<span class="badge red">Chưa TT</span>'}</td>
+            <td>
+              <button class="btn" onclick="togglePaid(${p.id})">${p.paid ? 'Hủy TT' : 'Xác nhận TT'}</button>
+              <button class="btn danger" onclick="deletePayment(${p.id})">Xóa</button>
+            </td>
+          </tr>`;
+        }).join('');
+      paymentsTableBody.innerHTML = rows || '<tr><td colspan="10">Không có dữ liệu</td></tr>';
+    }
+    window.togglePaid = function(id) {
+      const p = state.payments.find(p => p.id === id);
+      if (!p) return;
+      p.paid = !p.paid;
+      save();
+    };
+    window.deletePayment = function(id) {
+      if (!confirm('Xóa hóa đơn này?')) return;
+      state.payments = state.payments.filter(p => p.id !== id);
+      save();
+    };
+
+    // ---------- Settings ----------
+    const defaultRoomPrice = document.getElementById('defaultRoomPrice');
+    const elecRate = document.getElementById('elecRate');
+    const waterRate = document.getElementById('waterRate');
+
+    document.getElementById('saveSettingsBtn').addEventListener('click', () => {
+      state.settings.roomDefaultPrice = parseInt(defaultRoomPrice.value || state.settings.roomDefaultPrice, 10);
+      state.settings.elecRate = parseInt(elecRate.value || state.settings.elecRate, 10);
+      state.settings.waterRate = parseInt(waterRate.value || state.settings.waterRate, 10);
+      save();
+    });
+    document.getElementById('seedDataBtn').addEventListener('click', () => {
+      if (!confirm('Tạo lại dữ liệu mẫu? Dữ liệu hiện tại sẽ được ghi đè.')) return;
+      resetAll();
+    });
+    document.getElementById('resetDataBtn').addEventListener('click', () => {
+      if (!confirm('Reset toàn bộ dữ liệu về mặc định?')) return;
+      resetAll();
+    });
+
+    function renderSettings() {
+      defaultRoomPrice.value = state.settings.roomDefaultPrice;
+      elecRate.value = state.settings.elecRate;
+      waterRate.value = state.settings.waterRate;
+    }
+
+    // ---------- Render ----------
+    function renderAll() {
+      renderDashboard();
+      renderRooms();
+      renderTenants();
+      renderPayments();
+      renderSettings();
+    }
+
+    // ---------- Init ----------
+    load();
+    renderAll();
+
+    // Filters listeners
+    roomStatusFilter.addEventListener('change', renderRooms);
+    roomSearch.addEventListener('input', renderRooms);
+    tenantRoomFilter.addEventListener('change', renderTenants);
+    tenantSearch.addEventListener('input', renderTenants);
+    paymentMonthFilter.addEventListener('change', renderPayments);
+    paymentStatusFilter.addEventListener('change', renderPayments);
+  </script>
 </body>
 </html>
