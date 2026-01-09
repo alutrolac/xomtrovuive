@@ -2,298 +2,238 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Quản lý nhà trọ • Professional</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quản lý nhà trọ</title>
+  <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
   <header class="app-header">
-    <div class="brand">
-      <div class="logo"></div>
-      <div class="brand-text">
-        <div class="title">Quản lý nhà trọ</div>
-        <div class="subtitle">Professional • HTML/CSS/JS • localStorage</div>
-      </div>
+    <h1>Quản lý nhà trọ</h1>
+    <div class="header-actions">
+      <button id="btnImport">Import dữ liệu</button>
+      <button id="btnExport">Export dữ liệu</button>
+      <button id="btnReset">Reset dữ liệu</button>
     </div>
-    <nav id="tabs" class="tabs">
-      <button data-tab="dashboard" class="active">Tổng quan</button>
-      <button data-tab="rooms">Phòng</button>
-      <button data-tab="tenants">Khách thuê</button>
-      <button data-tab="payments">Thanh toán</button>
-      <button data-tab="settings">Cấu hình</button>
-    </nav>
   </header>
 
-  <main class="container">
-    <div id="toast" class="toast hidden"></div>
+  <nav class="sidebar">
+    <ul>
+      <li class="active" data-view="dashboard">Dashboard</li>
+      <li data-view="rooms">Phòng</li>
+      <li data-view="tenants">Khách trọ</li>
+      <li data-view="payments">Thanh toán</li>
+      <li data-view="reports">Báo cáo</li>
+      <li data-view="settings">Cấu hình</li>
+    </ul>
+  </nav>
 
+  <main class="content">
     <!-- Dashboard -->
-    <section id="dashboard" class="panel">
+    <section id="view-dashboard" class="view active">
       <h2>Tổng quan</h2>
-      <div class="grid cols-4">
-        <div class="stat"><div class="label">Tổng phòng</div><div class="value" id="statRooms">0</div></div>
-        <div class="stat"><div class="label">Phòng đang thuê</div><div class="value" id="statOccupied">0</div></div>
-        <div class="stat"><div class="label">Tổng khách</div><div class="value" id="statTenants">0</div></div>
-        <div class="stat"><div class="label">Hóa đơn chưa thanh toán</div><div class="value" id="statUnpaid">0</div></div>
+      <div class="cards">
+        <div class="card">
+          <div class="card-title">Tổng số phòng</div>
+          <div class="card-value" id="statRooms">0</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Phòng đang thuê</div>
+          <div class="card-value" id="statOccupied">0</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Tổng khách trọ</div>
+          <div class="card-value" id="statTenants">0</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Doanh thu tháng</div>
+          <div class="card-value" id="statRevenue">0</div>
+        </div>
       </div>
       <div class="panel">
-        <div class="row">
-          <div class="spacer"></div>
-          <button class="btn" id="exportDataBtn">Xuất dữ liệu</button>
-          <label class="btn ghost dashed">
-            Nhập dữ liệu <input type="file" id="importDataInput" accept="application/json" hidden>
-          </label>
-        </div>
+        <h3>Hóa đơn gần đây</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Phòng</th>
+              <th>Tháng</th>
+              <th>Tiền phòng</th>
+              <th>Điện</th>
+              <th>Nước</th>
+              <th>Tổng</th>
+              <th>Trạng thái</th>
+            </tr>
+          </thead>
+          <tbody id="recentInvoices"></tbody>
+        </table>
       </div>
     </section>
 
     <!-- Rooms -->
-    <section id="rooms" class="panel hidden">
-      <h2>Quản lý phòng</h2>
-      <div class="grid cols-3">
-        <div class="card">
-          <h3>Thêm/Sửa phòng</h3>
-          <div class="grid cols-2">
-            <div>
-              <label>Tên phòng</label>
-              <input id="roomName" placeholder="VD: P101" />
-            </div>
-            <div>
-              <label>Giá phòng (VNĐ)</label>
-              <input id="roomPrice" type="number" min="0" />
-            </div>
-          </div>
-          <div class="row">
-            <button class="btn primary" id="addRoomBtn">Lưu phòng</button>
-            <button class="btn" id="resetRoomFormBtn">Làm mới</button>
-          </div>
-        </div>
-        <div class="card">
-          <h3>Bộ lọc</h3>
-          <div class="grid cols-2">
-            <div>
-              <label>Trạng thái</label>
-              <select id="roomStatusFilter">
-                <option value="">Tất cả</option>
-                <option value="vacant">Trống</option>
-                <option value="occupied">Đang thuê</option>
-              </select>
-            </div>
-            <div>
-              <label>Tìm theo tên</label>
-              <input id="roomSearch" placeholder="Nhập tên phòng..." />
-            </div>
-          </div>
-        </div>
-        <div class="card">
-          <h3>Cấu hình nhanh</h3>
-          <div class="grid cols-2">
-            <div>
-              <label>Giá phòng mặc định</label>
-              <input id="defaultRoomPriceQuick" type="number" min="0" />
-            </div>
-            <div class="row">
-              <button class="btn warn" id="applyDefaultPriceBtn">Áp dụng cho phòng trống</button>
-            </div>
-          </div>
-        </div>
+    <section id="view-rooms" class="view">
+      <div class="view-header">
+        <h2>Quản lý phòng</h2>
+        <button id="btnAddRoom">Thêm phòng</button>
       </div>
       <div class="panel">
-        <table class="table" id="roomsTable">
+        <table>
           <thead>
             <tr>
-              <th>#</th><th>Tên phòng</th><th>Giá phòng</th><th>Trạng thái</th><th>Khách</th><th>Thao tác</th>
+              <th>Mã phòng</th>
+              <th>Sức chứa</th>
+              <th>Khách hiện tại</th>
+              <th>Giá phòng</th>
+              <th>Trạng thái</th>
+              <th>Hành động</th>
             </tr>
           </thead>
-          <tbody></tbody>
+          <tbody id="roomsTable"></tbody>
         </table>
+      </div>
+      <div class="modal" id="roomModal">
+        <div class="modal-content">
+          <h3 id="roomModalTitle">Thêm phòng</h3>
+          <label>Mã phòng
+            <input type="text" id="roomCode"/>
+          </label>
+          <label>Sức chứa
+            <input type="number" id="roomCapacity" min="1"/>
+          </label>
+          <label>Giá phòng (VND)
+            <input type="number" id="roomPrice" min="0"/>
+          </label>
+          <div class="modal-actions">
+            <button id="saveRoom">Lưu</button>
+            <button class="secondary" id="closeRoomModal">Đóng</button>
+          </div>
+        </div>
       </div>
     </section>
 
     <!-- Tenants -->
-    <section id="tenants" class="panel hidden">
-      <h2>Quản lý khách thuê</h2>
-      <div class="grid cols-3">
-        <div class="card">
-          <h3>Thêm/Sửa khách</h3>
-          <div class="grid cols-2">
-            <div>
-              <label>Họ tên</label>
-              <input id="tenantName" placeholder="VD: Nguyễn Văn A" />
-            </div>
-            <div>
-              <label>Số điện thoại</label>
-              <input id="tenantPhone" placeholder="VD: 090..." />
-            </div>
-            <div>
-              <label>Phòng</label>
-              <select id="tenantRoom"></select>
-            </div>
-            <div>
-              <label>Ngày vào</label>
-              <input id="tenantMoveIn" type="date" />
-            </div>
-            <div>
-              <label>Ngày ra (nếu có)</label>
-              <input id="tenantMoveOut" type="date" />
-            </div>
-          </div>
-          <div class="row">
-            <button class="btn primary" id="addTenantBtn">Lưu khách</button>
-            <button class="btn" id="resetTenantFormBtn">Làm mới</button>
-          </div>
-        </div>
-        <div class="card">
-          <h3>Bộ lọc</h3>
-          <div class="grid cols-2">
-            <div>
-              <label>Phòng</label>
-              <select id="tenantRoomFilter"></select>
-            </div>
-            <div>
-              <label>Tìm theo tên/điện thoại</label>
-              <input id="tenantSearch" placeholder="Nhập từ khóa..." />
-            </div>
-          </div>
-        </div>
-        <div class="card">
-          <h3>Tác vụ nhanh</h3>
-          <div class="row">
-            <button class="btn warn" id="vacateRoomBtn">Trả phòng (khách chọn)</button>
-          </div>
-        </div>
+    <section id="view-tenants" class="view">
+      <div class="view-header">
+        <h2>Quản lý khách trọ</h2>
+        <button id="btnAddTenant">Thêm khách</button>
       </div>
       <div class="panel">
-        <table class="table" id="tenantsTable">
+        <table>
           <thead>
             <tr>
-              <th>#</th><th>Họ tên</th><th>Điện thoại</th><th>Phòng</th><th>Ngày vào</th><th>Ngày ra</th><th>Thao tác</th>
+              <th>Họ tên</th>
+              <th>SĐT</th>
+              <th>Phòng</th>
+              <th>Ngày vào</th>
+              <th>Trạng thái</th>
+              <th>Hành động</th>
             </tr>
           </thead>
-          <tbody></tbody>
+          <tbody id="tenantsTable"></tbody>
         </table>
+      </div>
+      <div class="modal" id="tenantModal">
+        <div class="modal-content">
+          <h3 id="tenantModalTitle">Thêm khách</h3>
+          <label>Họ tên
+            <input type="text" id="tenantName"/>
+          </label>
+          <label>SĐT
+            <input type="text" id="tenantPhone"/>
+          </label>
+          <label>Phòng
+            <select id="tenantRoom"></select>
+          </label>
+          <label>Ngày vào
+            <input type="date" id="tenantStart"/>
+          </label>
+          <div class="modal-actions">
+            <button id="saveTenant">Lưu</button>
+            <button class="secondary" id="closeTenantModal">Đóng</button>
+          </div>
+        </div>
       </div>
     </section>
 
     <!-- Payments -->
-    <section id="payments" class="panel hidden">
-      <h2>Quản lý thanh toán</h2>
-      <div class="grid cols-3">
-        <div class="card">
-          <h3>Tạo hóa đơn</h3>
-          <div class="grid cols-2">
-            <div>
-              <label>Khách thuê</label>
-              <select id="paymentTenant"></select>
-            </div>
-            <div>
-              <label>Tháng</label>
-              <input id="paymentMonth" type="month" />
-            </div>
-            <div>
-              <label>Tiền điện (kWh)</label>
-              <input id="paymentElec" type="number" min="0" />
-            </div>
-            <div>
-              <label>Tiền nước (m³)</label>
-              <input id="paymentWater" type="number" min="0" />
-            </div>
-          </div>
-          <div class="row">
-            <button class="btn primary" id="addPaymentBtn">Tạo hóa đơn</button>
-            <button class="btn" id="resetPaymentFormBtn">Làm mới</button>
-          </div>
-        </div>
-        <div class="card">
-          <h3>Bộ lọc</h3>
-          <div class="grid cols-2">
-            <div>
-              <label>Tháng</label>
-              <input id="paymentMonthFilter" type="month" />
-            </div>
-            <div>
-              <label>Trạng thái</label>
-              <select id="paymentStatusFilter">
-                <option value="">Tất cả</option>
-                <option value="paid">Đã thanh toán</option>
-                <option value="unpaid">Chưa thanh toán</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="card">
-          <h3>Cấu hình giá</h3>
-          <div class="grid cols-2">
-            <div>
-              <label>Giá điện (VNĐ/kWh)</label>
-              <input id="elecRateQuick" type="number" min="0" />
-            </div>
-            <div>
-              <label>Giá nước (VNĐ/m³)</label>
-              <input id="waterRateQuick" type="number" min="0" />
-            </div>
-          </div>
-          <div class="row">
-            <button class="btn warn" id="applyRatesBtn">Cập nhật giá</button>
+    <section id="view-payments" class="view">
+      <div class="view-header">
+        <h2>Thanh toán</h2>
+        <button id="btnGenerateInvoices">Tạo hóa đơn tháng</button>
+      </div>
+      <div class="panel">
+        <table>
+          <thead>
+            <tr>
+              <th>Phòng</th>
+              <th>Tháng</th>
+              <th>Tiền phòng</th>
+              <th>Điện (kWh)</th>
+              <th>Nước (m³)</th>
+              <th>Tổng</th>
+              <th>Trạng thái</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody id="paymentsTable"></tbody>
+        </table>
+      </div>
+      <div class="modal" id="invoiceModal">
+        <div class="modal-content">
+          <h3>Chỉnh sửa hóa đơn</h3>
+          <label>Điện (kWh)
+            <input type="number" id="invElectric" min="0"/>
+          </label>
+          <label>Nước (m³)
+            <input type="number" id="invWater" min="0"/>
+          </label>
+          <label>Ghi chú
+            <input type="text" id="invNote"/>
+          </label>
+          <div class="modal-actions">
+            <button id="saveInvoice">Lưu</button>
+            <button class="secondary" id="closeInvoiceModal">Đóng</button>
           </div>
         </div>
       </div>
+    </section>
+
+    <!-- Reports -->
+    <section id="view-reports" class="view">
+      <h2>Báo cáo</h2>
       <div class="panel">
-        <table class="table" id="paymentsTable">
-          <thead>
-            <tr>
-              <th>#</th><th>Khách</th><th>Tháng</th><th>Phòng</th>
-              <th>Phòng (VNĐ)</th><th>Điện</th><th>Nước</th><th>Tổng (VNĐ)</th><th>Trạng thái</th><th>Thao tác</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+        <div class="report-filters">
+          <label>Tháng
+            <input type="month" id="reportMonth"/>
+          </label>
+          <button id="btnRunReport">Xem báo cáo</button>
+        </div>
+        <div id="reportResult"></div>
       </div>
     </section>
 
     <!-- Settings -->
-    <section id="settings" class="panel hidden">
-      <h2>Cấu hình & dữ liệu</h2>
-      <div class="grid cols-2">
-        <div class="card">
-          <h3>Giá mặc định</h3>
-          <div class="grid cols-2">
-            <div>
-              <label>Giá phòng mặc định (VNĐ)</label>
-              <input id="defaultRoomPrice" type="number" min="0" />
-            </div>
-            <div>
-              <label>Giá điện (VNĐ/kWh)</label>
-              <input id="elecRate" type="number" min="0" />
-            </div>
-            <div>
-              <label>Giá nước (VNĐ/m³)</label>
-              <input id="waterRate" type="number" min="0" />
-            </div>
-          </div>
-          <div class="row">
-            <button class="btn primary" id="saveSettingsBtn">Lưu cấu hình</button>
-          </div>
-        </div>
-        <div class="card">
-          <h3>Dữ liệu</h3>
-          <div class="row">
-            <button class="btn warn" id="seedDataBtn">Tạo dữ liệu mẫu</button>
-            <button class="btn danger" id="resetDataBtn">Reset dữ liệu</button>
-          </div>
-          <p class="muted">Dữ liệu lưu trong trình duyệt (localStorage). Dùng Xuất/Nhập để sao lưu/phục hồi.</p>
-        </div>
+    <section id="view-settings" class="view">
+      <h2>Cấu hình</h2>
+      <div class="panel settings-grid">
+        <label>Giá điện (VND/kWh)
+          <input type="number" id="cfgElectric" min="0"/>
+        </label>
+        <label>Giá nước (VND/m³)
+          <input type="number" id="cfgWater" min="0"/>
+        </label>
+        <label>Giá phòng mặc định (VND/phòng)
+          <input type="number" id="cfgRoomPrice" min="0"/>
+        </label>
+        <button id="btnSaveSettings">Lưu cấu hình</button>
       </div>
     </section>
   </main>
 
   <footer class="app-footer">
-    © 2026 Quản lý nhà trọ • Professional • HTML/CSS/JS • localStorage
+    <span>© 2026 Quản lý nhà trọ</span>
   </footer>
 
-  <script src="assets/app.js"></script>
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
 </body>
 </html>
