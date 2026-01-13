@@ -1,48 +1,48 @@
 
+export type RoomStatus = 'AVAILABLE' | 'OCCUPIED' | 'MAINTENANCE';
+
+export interface Room {
+  id: string;
+  name: string;
+  type: string;
+  price: number;
+  status: RoomStatus;
+  floor: number;
+  tenantId?: string;
+}
+
 export interface Tenant {
   id: string;
   name: string;
   phone: string;
-  idCard: string;
   email: string;
-  hometown: string;
-  roomNumber: string;
-  startDate: string;
-  status: 'active' | 'inactive';
-}
-
-export interface Room {
-  id: string;
-  number: string;
-  price: number;
-  status: 'available' | 'occupied' | 'maintenance';
+  identityCard: string;
+  joinDate: string;
+  roomId: string;
 }
 
 export interface Invoice {
   id: string;
-  tenantId: string;
-  tenantName: string;
-  roomNumber: string;
+  roomId: string;
   month: string;
   year: number;
   rentAmount: number;
-  electricityUnits: number;
-  electricityPrice: number;
-  waterUnits: number;
-  waterPrice: number;
+  electricityCost: number;
+  waterCost: number;
+  serviceCost: number;
   total: number;
-  status: 'paid' | 'unpaid';
+  status: 'PAID' | 'UNPAID' | 'OVERDUE';
   createdAt: string;
 }
 
 export interface Contract {
   id: string;
   tenantId: string;
-  roomNumber: string;
+  roomId: string;
   startDate: string;
   endDate: string;
   deposit: number;
   terms: string;
 }
 
-export type ViewType = 'dashboard' | 'tenants' | 'rooms' | 'invoices' | 'contracts';
+export type ViewType = 'DASHBOARD' | 'ROOMS' | 'TENANTS' | 'INVOICES' | 'CONTRACTS' | 'REPORTS' | 'AI_ASSISTANT';
