@@ -1,6 +1,9 @@
 
 {
-  "name": "Hệ Thống Quản Lý Nhà Trọ Thông Minh",
-  "description": "Ứng dụng quản lý nhà trọ toàn diện với quản lý khách hàng, hóa đơn, hợp đồng và dashboard phân tích dữ liệu chuyên sâu.",
-  "requestFramePermissions": []
+  "name": "LuxRental Pro - Hệ Thống Quản Lý Nhà Trọ Đẳng Cấp",
+  "description": "Một ứng dụng quản lý phòng trọ chuyên nghiệp với dashboard thông minh, quản lý hóa đơn, hợp đồng và báo cáo tài chính tích hợp AI Gemini.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
 }
